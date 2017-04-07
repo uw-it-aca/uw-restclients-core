@@ -256,7 +256,7 @@ class LiveDAO(DAOImplementation):
 
         response = pool.urlopen(method, url, body=body,
                                 headers=headers, redirect=True,
-                                retries=False, timeout=timeout)
+                                retries=1, timeout=timeout)
 
         return response
 
