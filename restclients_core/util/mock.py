@@ -48,12 +48,14 @@ def load_resource_from_path(resource_dir, service_name,
             return None
 
         data = handle.read()
+        response = MockHTTP()
+        response.content = data
+
         try:
             data = data.decode('utf-8')
         except UnicodeDecodeError:
             pass
 
-        response = MockHTTP()
         response.status = 200
         response.data = data
         response.headers = {"X-Data-Source": service_name + " file mock data",

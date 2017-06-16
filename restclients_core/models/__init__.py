@@ -20,6 +20,7 @@ class MockHTTP(object):
     status = 0
     data = ""
     headers = {}
+    content = b''
 
     def read(self):
         """
