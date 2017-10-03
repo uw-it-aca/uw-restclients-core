@@ -32,13 +32,17 @@ def load_resource_from_path(resource_dir, service_name,
         # attempt to open query permutations even on success
         # so that if there are multiple files we throw an exception
         if "?" in url:
-            handle = attempt_open_query_permutations(url, orig_file_path,
-                                                     False)
+            q_handle = attempt_open_query_permutations(url, orig_file_path,
+                                                       False)
+            if q_handle is not None:
+                header_handle = q_handle
 
         if "?" in url:
-            header_handle = attempt_open_query_permutations(url,
-                                                            orig_file_path,
-                                                            True)
+            q_header_handle = attempt_open_query_permutations(url,
+                                                              orig_file_path,
+                                                              True)
+            if q_header_handle is not None:
+                header_handle = q_header_handle
 
         if handle is None and header_handle is None:
             return None
