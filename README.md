@@ -1,4 +1,4 @@
-# Base class and utils for UW RestClients                                       
+# Base class and utils for UW REST Clients                                       
                                                                                 
 [![Build Status](https://api.travis-ci.org/uw-it-aca/uw-restclients-core.svg?branch=master)](https://travis-ci.org/uw-it-aca/uw-restclients-core)
 [![Coverage Status](https://coveralls.io/repos/uw-it-aca/uw-restclients-core/badge.png?branch=master)](https://coveralls.io/r/uw-it-aca/uw-restclients-core?branch=master)
