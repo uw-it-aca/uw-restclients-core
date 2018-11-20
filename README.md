@@ -1,8 +1,10 @@
+# Base class and utils for UW RestClients                                       
+                                                                                
 [![Build Status](https://api.travis-ci.org/uw-it-aca/uw-restclients-core.svg?branch=master)](https://travis-ci.org/uw-it-aca/uw-restclients-core)
 [![Coverage Status](https://coveralls.io/repos/uw-it-aca/uw-restclients-core/badge.png?branch=master)](https://coveralls.io/r/uw-it-aca/uw-restclients-core?branch=master)
+[![PyPi Version](https://img.shields.io/pypi/v/uw-restclients-core.svg)](https://pypi.python.org/pypi/uw-restclients-core)
+![Python versions](https://img.shields.io/pypi/pyversions/uw-restclients-core.svg)
 
-uw-restclients-core
-===================
 
 This module provides useful interfaces for webservice clients.
 
