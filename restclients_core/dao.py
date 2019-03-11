@@ -3,13 +3,15 @@ import datetime
 from restclients_core.util.mock import load_resource_from_path
 from restclients_core.util.local_cache import set_cache_value, get_cache_value
 from restclients_core.models import MockHTTP, CacheHTTP
-from restclients_core.exceptions import ImproperlyConfigured
+from restclients_core.exceptions import (
+    ImproperlyConfigured, DataFailureException)
 from restclients_core.cache import NoCache
 from restclients_core.util.performance import PerformanceDegradation
 from importlib import import_module
 from commonconf import settings
 from urllib3 import connection_from_url
 from urllib3.util.retry import Retry
+from urllib3.exceptions import MaxRetryError
 from logging import getLogger
 import dateutil.parser
 from urllib.parse import urlparse
@@ -311,10 +313,12 @@ class LiveDAO(DAOImplementation):
         pool = self.get_pool()
         timeout = pool.timeout.read_timeout
 
-        response = pool.urlopen(method, url, body=body, headers=headers,
-                                timeout=timeout)
-
-        return response
+        try:
+            return pool.urlopen(
+                method, url, body=body, headers=headers, timeout=timeout)
+        except MaxRetryError as err:
+            status = 0
+            raise DataFailureException(url, status, err)
 
     def get_pool(self):
         service = self.dao.service_name()
