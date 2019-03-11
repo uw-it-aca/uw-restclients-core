@@ -1,6 +1,9 @@
 from unittest import TestCase, skipUnless
 from restclients_core.dao import DAO
+from restclients_core.exceptions import DataFailureException
+from urllib3.connectionpool import HTTPConnectionPool
 from urllib3.exceptions import MaxRetryError, SSLError
+import mock
 import os
 
 
@@ -96,7 +99,25 @@ class TestLive(TestCase):
         self.assertEquals(response.data, b'ok')
 
     def test_multiple_redirects(self):
-        self.assertRaises(MaxRetryError, TDAO().getURL, '/redirect', {})
+        self.assertRaises(DataFailureException, TDAO().getURL, '/redirect', {})
+
+        try:
+            TDAO().getURL('/redirect', {})
+        except DataFailureException as ex:
+            self.assertEqual(ex.url, '/redirect')
+            self.assertEqual(ex.status, 0)
+
+    @mock.patch.object(HTTPConnectionPool, 'urlopen')
+    def test_max_retry_error(self, mock_urlopen):
+        mock_urlopen.side_effect = MaxRetryError(None, '/ok')
+
+        self.assertRaises(DataFailureException, TDAO().getURL, '/ok', {})
+
+        try:
+            TDAO().getURL('/ok', {})
+        except DataFailureException as ex:
+            self.assertEqual(ex.url, '/ok')
+            self.assertEqual(ex.status, 0)
 
 
 @skipUnless("RUN_SSL_TESTS" in os.environ, "RUN_SSL_TESTS=1 to run tests")
