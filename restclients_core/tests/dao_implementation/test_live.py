@@ -135,7 +135,13 @@ class TestLiveSSL(TestCase):
         self.assertEquals(response.data, b'ok: my.app')
 
     def test_ssl_non_validated_cert(self):
-        self.assertRaises(MaxRetryError, SSLBadFailTDAO().getURL, "/")
+        self.assertRaises(DataFailureException, SSLBadFailTDAO().getURL, '/')
+
+        try:
+            SSLBadFailTDAO().getURL('/')
+        except DataFailureException as ex:
+            self.assertEqual(ex.url, '/')
+            self.assertEqual(ex.status, 0)
 
     def test_ssl_non_valid_ignore(self):
         response = SSLBadIgnoreTDAO().getURL('/ok', {})
