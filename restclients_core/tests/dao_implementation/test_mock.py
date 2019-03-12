@@ -53,6 +53,11 @@ class TestMock(TestCase):
         response = TDAO().getURL('/image.jpg', {})
         self.assertEquals(response.status, 200)
 
+    def test_params_none(self):
+        response = TDAO().getURL('/search?'
+                                 'first=a&second=b.POST')
+        self.assertEquals(response.status, 200)
+
     def test_out_of_order_params(self):
         response = TDAO().getURL('/search?'
                                  'first=a&second=b&third=c&fourth=d')
