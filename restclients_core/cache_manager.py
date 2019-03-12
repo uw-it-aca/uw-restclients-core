@@ -3,7 +3,9 @@ This is a class that makes it possible to bulk-save cache entries.
 For restclients methods that use threading, this can be used to prevent
 innodb gap locks from deadlocking sequential inserts.
 """
+from logging import getLogger
 
+logger = getLogger(__name__)
 __manage_bulk_inserts = False
 __bulk_insert_queue = []
 
@@ -31,7 +33,7 @@ def save_all_queued_entries():
                 entry.save()
                 seen_urls[entry.url] = True
     except Exception as ex:
-        print("Error bulk saving cache entries: ", ex)
+        logger.error("Error bulk saving cache entries: ", str(ex))
 
     __bulk_insert_queue = []
 

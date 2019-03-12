@@ -10,6 +10,7 @@ class TDAO(DAO):
         return 'testing'
 
     def service_mock_paths(self):
+        # tests/dao_implementation/resources/
         return [abspath(dirname(__file__) + "/resources/")]
 
 
@@ -46,7 +47,7 @@ class TestMock(TestCase):
 
         response = TDAO().getURL('/override.json', {})
         self.assertEquals(response.status, 200)
-        self.assertEquals(response.read(), b'{"override": true }\n')
+        self.assertEquals(response.read(), b'{"override": false }\n')
 
     def test_binary_data(self):
         response = TDAO().getURL('/image.jpg', {})
