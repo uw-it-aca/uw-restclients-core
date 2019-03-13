@@ -2,76 +2,75 @@ import re
 import os
 from os.path import isfile, join, dirname
 import json
-
+from urllib.parse import unquote
 from restclients_core.exceptions import DataFailureException
-
-try:
-    from urllib.parse import unquote
-except ImportError:
-    from urllib import unquote
 from restclients_core.models import MockHTTP
 
 
-def load_resource_from_path(resource_dir, service_name,
+def load_resource_from_path(resource_dir,
+                            service_name,
                             implementation_name,
-                            url, headers):
-
-    RESOURCE_ROOT = os.path.join(resource_dir,
-                                 service_name,
-                                 implementation_name)
-
+                            url,
+                            headers):
     if url == "///":
         # Just a placeholder to put everything else in an else.
         # If there are things that need dynamic work, they'd go here
         pass
     else:
+        response = MockHTTP()
+        response.status = 404
+        response.headers = None
+        RESOURCE_ROOT = os.path.join(resource_dir,
+                                     service_name,
+                                     implementation_name)
         orig_file_path = RESOURCE_ROOT + url
-        handle = open_file(orig_file_path)
-        header_handle = open_file(orig_file_path + ".http-headers")
 
-        # attempt to open query permutations even on success
+        handle = open_file(orig_file_path)
+        if handle is not None:
+            response.status = 200
+            response.data = handle.read()
+
+        header_handle = open_file(orig_file_path + ".http-headers")
+        if header_handle is not None:
+            __read_header(header_handle, response, service_name)
+
+        # Check query permutations even on success
         # so that if there are multiple files we throw an exception
         if "?" in url:
-            handle = attempt_open_query_permutations(url, orig_file_path,
-                                                     False)
+            handle = attempt_open_query_permutations(
+                url, orig_file_path, False)
+            if handle is not None and response.status == 404:
+                response.status = 200
+                response.data = handle.read()
 
-        if "?" in url:
-            header_handle = attempt_open_query_permutations(url,
-                                                            orig_file_path,
-                                                            True)
-
-        if handle is None and header_handle is None:
-            return None
-
-        if handle is not None:
-            data = handle.read()
-
-        response = MockHTTP()
-        response.status = 200
-        if handle is not None:
-            response.data = data
-        response.headers = {"X-Data-Source": service_name + " file mock data",
-                            }
-
-        if header_handle is not None:
-            try:
-                data = header_handle.read()
-                file_values = json.loads(data)
-
-                if "headers" in file_values:
-                    response.headers.update(file_values['headers'])
-
-                    if 'status' in file_values:
-                        response.status = file_values['status']
-
-                else:
-                    response.headers.update(file_values)
-            except UnicodeDecodeError:
-                pass
-            except IOError:
-                pass
-
+            header_handle = attempt_open_query_permutations(
+                url, orig_file_path, True)
+            if header_handle is not None and response.headers is None:
+                __read_header(header_handle, response, service_name)
         return response
+
+
+def __read_header(header_handle, response, service_name):
+    try:
+        data = header_handle.read()
+        file_values = json.loads(data)
+
+        if response.headers is None:
+            response.headers = {
+                "X-Data-Source": service_name + " file mock data",
+            }
+
+        if "headers" in file_values:
+            response.headers.update(file_values['headers'])
+
+            if 'status' in file_values:
+                response.status = file_values['status']
+        else:
+            response.headers.update(file_values)
+    except UnicodeDecodeError:
+        pass
+    except IOError:
+        pass
 
 
 def convert_to_platform_safe(dir_file_name):
@@ -105,7 +104,7 @@ def open_file(orig_file_path):
             file_path = path
             handle = open(path, "rb")
             break
-        except IOError as ex:
+        except IOError:
             pass
 
     return handle

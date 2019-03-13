@@ -10,6 +10,7 @@ class TDAO(DAO):
         return 'testing'
 
     def service_mock_paths(self):
+        # tests/dao_implementation/resources/
         return [abspath(dirname(__file__) + "/resources/")]
 
 
@@ -50,6 +51,11 @@ class TestMock(TestCase):
 
     def test_binary_data(self):
         response = TDAO().getURL('/image.jpg', {})
+        self.assertEquals(response.status, 200)
+
+    def test_params_none(self):
+        response = TDAO().getURL('/search?'
+                                 'first=a&second=b.POST')
         self.assertEquals(response.status, 200)
 
     def test_out_of_order_params(self):

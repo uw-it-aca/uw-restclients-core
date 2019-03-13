@@ -337,13 +337,13 @@ class LiveDAO(DAOImplementation):
 
         service = self.dao.service_name()
 
-        host = self.dao.get_service_setting("HOST")
-        socket_timeout = self.dao.get_service_setting("TIMEOUT", 2)
-        max_pool_size = self.dao.get_service_setting("POOL_SIZE", 10)
-        key_file = self.dao.get_service_setting("KEY_FILE", None)
-        cert_file = self.dao.get_service_setting("CERT_FILE", None)
         ca_certs = self.dao.get_setting("CA_BUNDLE",
                                         "/etc/ssl/certs/ca-bundle.crt")
+        cert_file = self.dao.get_service_setting("CERT_FILE", None)
+        host = self.dao.get_service_setting("HOST")
+        key_file = self.dao.get_service_setting("KEY_FILE", None)
+        max_pool_size = int(self.dao.get_service_setting("POOL_SIZE", 10))
+        socket_timeout = int(self.dao.get_service_setting("TIMEOUT", 2))
         verify_https = self.dao.get_service_setting("VERIFY_HTTPS")
 
         if verify_https is None:
@@ -399,10 +399,10 @@ class MockDAO(DAOImplementation):
             return value
 
         for path in self._get_mock_paths():
-            response = load_resource_from_path(path, service, "file", url,
-                                               headers)
+            response = load_resource_from_path(
+                path, service, "file", url, headers)
 
-            if response:
+            if response and response.status != 404:
                 set_cache_value(cache_key, response)
                 return response
 
