@@ -399,10 +399,10 @@ class MockDAO(DAOImplementation):
             return value
 
         for path in self._get_mock_paths():
-            response = load_resource_from_path(path, service, "file", url,
-                                               headers)
+            response = load_resource_from_path(
+                path, service, "file", url, headers)
 
-            if response:
+            if response and response.status != 404:
                 set_cache_value(cache_key, response)
                 return response
 
