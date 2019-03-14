@@ -11,7 +11,7 @@ from importlib import import_module
 from commonconf import settings
 from urllib3 import connection_from_url
 from urllib3.util.retry import Retry
-from urllib3.exceptions import MaxRetryError
+from urllib3.exceptions import HTTPError
 from logging import getLogger
 import dateutil.parser
 from urllib.parse import urlparse
@@ -316,7 +316,7 @@ class LiveDAO(DAOImplementation):
         try:
             return pool.urlopen(
                 method, url, body=body, headers=headers, timeout=timeout)
-        except MaxRetryError as err:
+        except HTTPError as err:
             status = 0
             raise DataFailureException(url, status, err)
 
