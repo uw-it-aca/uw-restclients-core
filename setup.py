@@ -24,6 +24,7 @@ setup(
     include_package_data=True,
     install_requires=['commonconf>=1.0',
                       'urllib3',
+                      'pyOpenSSL',
                       'python-dateutil',
                       'mock'],
     license='Apache License, Version 2.0',
