@@ -362,7 +362,7 @@ class LiveDAO(DAOImplementation):
 
         if urlparse(host).scheme == "https":
             kwargs["ssl_version"] = self.dao.get_service_setting(
-                "SSL_VERSION", ssl.PROTOCOL_TLSv2)
+                "SSL_VERSION", ssl.PROTOCOL_TLS)
             if verify_https:
                 kwargs["cert_reqs"] = "CERT_REQUIRED"
                 kwargs["ca_certs"] = ca_certs
