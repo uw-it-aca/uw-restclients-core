@@ -40,7 +40,6 @@ ca_path = os.path.join(os.path.dirname(__file__), 'cacert.pem')
 
 server = HTTPServer(('localhost', PORT_NUMBER), myHandler)
 server.socket = ssl.wrap_socket(server.socket,
-                                ssl_version=ssl.PROTOCOL_TLSv1_2,
                                 keyfile=key_path,
                                 certfile=cert_path,
                                 ca_certs=ca_path,
