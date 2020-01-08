@@ -7,8 +7,8 @@ class TestPrometheusObservations(TestCase):
 
     def test_prometheus_observation(self):
         response = TDAO().getURL('/ok')
-        metrics = generate_latest(REGISTRY)
+        metrics = generate_latest(REGISTRY).decode('utf-8')
         self.assertIn('restclient_request_duration_seconds_bucket{le="0.005",'
-                      'service="backend_test"} 1.0', metrics.decode('utf-8'))
+                      'service="backend_test"} 9.0', metrics)
         self.assertIn('restclient_response_status_code_bucket{le="200.0",'
-                      'service="backend_test"} 1.0', metrics.decode('utf-8'))
+                      'service="backend_test"} 9.0', metrics)
