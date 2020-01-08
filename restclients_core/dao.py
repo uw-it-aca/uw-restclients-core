@@ -12,6 +12,7 @@ from commonconf import settings
 from urllib3 import connection_from_url
 from urllib3.util.retry import Retry
 from urllib3.exceptions import HTTPError
+from prometheus_client import Histogram
 from logging import getLogger
 import dateutil.parser
 from urllib.parse import urlparse
@@ -19,6 +20,15 @@ import time
 import ssl
 
 logger = getLogger(__name__)
+
+# prepare for prometheus observations
+prometheus_duration = Histogram('restclient_request_duration_seconds',
+                                'Restclient request duration (seconds)',
+                                ['service'])
+prometheus_status = Histogram('restclient_response_status_code',
+                              'Restclient web service response status code',
+                              ['service'],
+                              buckets=[200, 300, 400, 500])
 
 
 class DAO(object):
@@ -162,6 +172,10 @@ class DAO(object):
         backend = self.get_implementation()
 
         response = backend.load(method, url, headers, body)
+
+        self.prometheus_duration(time.time() - start_time)
+        self.prometheus_status(response.status)
+
         self._custom_response_edit(method, url, headers, body, response)
 
         if is_cacheable:
@@ -177,6 +191,29 @@ class DAO(object):
                   cached=False, start_time=start_time)
 
         return response
+
+    def prometheus_duration(self, duration):
+        """
+        Override this method if you have service-specific logic
+        around response times
+        """
+        self.prometheus_duration_observation(duration)
+
+    def prometheus_status(self, status):
+        """
+        Override this method to insert service-specific logic
+        before setting the response status code observation
+
+        e.g., If the service applies special meaning to, say, 404 response
+        that might not make sense to observe
+        """
+        self.prometheus_status_observation(status)
+
+    def prometheus_duration_observation(self, duration):
+        prometheus_duration.labels(self.service_name()).observe(duration)
+
+    def prometheus_status_observation(self, status):
+        prometheus_status.labels(self.service_name()).observe(status)
 
     def get_cache(self):
         implementation = self.get_setting("DAO_CACHE_CLASS", None)
