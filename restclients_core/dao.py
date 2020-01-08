@@ -12,7 +12,7 @@ from commonconf import settings
 from urllib3 import connection_from_url
 from urllib3.util.retry import Retry
 from urllib3.exceptions import HTTPError
-from prometheus_client import Histogram
+from prometheus_client import Histogram, Counter
 from logging import getLogger
 import dateutil.parser
 from urllib.parse import urlparse
@@ -28,7 +28,13 @@ prometheus_duration = Histogram('restclient_request_duration_seconds',
 prometheus_status = Histogram('restclient_response_status_code',
                               'Restclient web service response status code',
                               ['service'],
-                              buckets=[200, 300, 400, 500])
+                              buckets=[100, 200, 300, 400, 500])
+prometheus_timeout = Counter('restclient_request_timeout',
+                             'Restclient web service request timeout count',
+                             ['service'])
+prometheus_ssl_error = Counter('restclient_request_ssl_error',
+                               'Restclient web service SSL error count',
+                               ['service'])
 
 
 class DAO(object):
@@ -174,7 +180,7 @@ class DAO(object):
         response = backend.load(method, url, headers, body)
 
         self.prometheus_duration(time.time() - start_time)
-        self.prometheus_status(response.status)
+        self.prometheus_status(response)
 
         self._custom_response_edit(method, url, headers, body, response)
 
@@ -199,7 +205,7 @@ class DAO(object):
         """
         self.prometheus_duration_observation(duration)
 
-    def prometheus_status(self, status):
+    def prometheus_status(self, response):
         """
         Override this method to insert service-specific logic
         before setting the response status code observation
@@ -207,13 +213,15 @@ class DAO(object):
         e.g., If the service applies special meaning to, say, 404 response
         that might not make sense to observe
         """
-        self.prometheus_status_observation(status)
+        self.prometheus_status_observation(response.status)
 
     def prometheus_duration_observation(self, duration):
         prometheus_duration.labels(self.service_name()).observe(duration)
 
     def prometheus_status_observation(self, status):
-        prometheus_status.labels(self.service_name()).observe(status)
+        # status category buckets
+        prometheus_status.labels(self.service_name()).observe(
+            (status / 100) * 100)
 
     def get_cache(self):
         implementation = self.get_setting("DAO_CACHE_CLASS", None)
@@ -353,8 +361,12 @@ class LiveDAO(DAOImplementation):
         try:
             return pool.urlopen(
                 method, url, body=body, headers=headers, timeout=timeout)
+        except ssl.SSLError as err:
+            self._prometheus_ssl_error()
+            raise
         except HTTPError as err:
             status = 0
+            self._prometheus_timeout()
             raise DataFailureException(url, status, err)
 
     def get_pool(self):
@@ -371,8 +383,6 @@ class LiveDAO(DAOImplementation):
         :param socket_timeout:
             socket timeout for each connection in seconds
         """
-
-        service = self.dao.service_name()
 
         ca_certs = self.dao.get_setting("CA_BUNDLE",
                                         "/etc/ssl/certs/ca-bundle.crt")
@@ -407,6 +417,12 @@ class LiveDAO(DAOImplementation):
                 kwargs["cert_reqs"] = "CERT_NONE"
 
         return connection_from_url(host, **kwargs)
+
+    def _prometheus_timeout(self):
+        prometheus_timeout.labels(self.dao.service_name()).inc()
+
+    def _prometheus_ssl_error(self):
+        prometheus_ssl_error.labels(self.dao.service_name()).inc()
 
 
 class MockDAO(DAOImplementation):
