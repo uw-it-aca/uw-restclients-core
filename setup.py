@@ -25,6 +25,7 @@ setup(
     install_requires=['commonconf>=1.0',
                       'urllib3',
                       'python-dateutil',
+                      'prometheus-client>=0.7,<1.0',
                       'mock'],
     license='Apache License, Version 2.0',
     description=('Core code for clients of a variety of RESTful web services '
