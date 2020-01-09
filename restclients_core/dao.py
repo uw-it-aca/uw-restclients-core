@@ -221,7 +221,7 @@ class DAO(object):
     def prometheus_status_observation(self, status):
         # status category buckets
         prometheus_status.labels(self.service_name()).observe(
-            (status / 100) * 100)
+            (status // 100) * 100)
 
     def get_cache(self):
         implementation = self.get_setting("DAO_CACHE_CLASS", None)
