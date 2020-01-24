@@ -1,4 +1,5 @@
 from unittest import TestCase, skipUnless
+from commonconf import override_settings
 from restclients_core.dao import DAO
 from restclients_core.exceptions import DataFailureException
 from urllib3.connectionpool import HTTPConnectionPool
@@ -118,6 +119,23 @@ class TestLive(TestCase):
         except DataFailureException as ex:
             self.assertEqual(ex.url, '/ok')
             self.assertEqual(ex.status, 0)
+
+    def test_settings_defaults(self):
+        live_dao = TDAO().get_implementation()
+        with override_settings(RESTCLIENTS_LIVE_TEST_TIMEOUT=1.5):
+            self.assertEqual(live_dao._get_timeout(), 1.5)
+
+        with override_settings(RESTCLIENTS_LIVE_TEST_TIMEOUT='1.5'):
+            self.assertEqual(live_dao._get_timeout(), 1.5)
+
+        with override_settings(RESTCLIENTS_DEFAULT_TIMEOUT=0.25):
+            self.assertEqual(live_dao._get_timeout(), 0.25)
+
+        with override_settings(RESTCLIENTS_LIVE_TEST_POOL_SIZE=5):
+            self.assertEqual(live_dao._get_max_pool_size(), 5)
+
+        with override_settings(RESTCLIENTS_DEFAULT_POOL_SIZE=25):
+            self.assertEqual(live_dao._get_max_pool_size(), 25)
 
 
 @skipUnless("RUN_SSL_TESTS" in os.environ, "RUN_SSL_TESTS=1 to run tests")
