@@ -380,17 +380,12 @@ class LiveDAO(DAOImplementation):
     def create_pool(self):
         """
         Return a ConnectionPool instance of given host
-        :param socket_timeout:
-            socket timeout for each connection in seconds
         """
-
         ca_certs = self.dao.get_setting("CA_BUNDLE",
                                         "/etc/ssl/certs/ca-bundle.crt")
         cert_file = self.dao.get_service_setting("CERT_FILE", None)
         host = self.dao.get_service_setting("HOST")
         key_file = self.dao.get_service_setting("KEY_FILE", None)
-        max_pool_size = int(self.dao.get_service_setting("POOL_SIZE", 10))
-        socket_timeout = int(self.dao.get_service_setting("TIMEOUT", 2))
         verify_https = self.dao.get_service_setting("VERIFY_HTTPS")
 
         if verify_https is None:
@@ -398,8 +393,8 @@ class LiveDAO(DAOImplementation):
 
         kwargs = {
             "retries": Retry(total=1, connect=0, read=0, redirect=1),
-            "timeout": socket_timeout,
-            "maxsize": max_pool_size,
+            "timeout": self._get_timeout(),
+            "maxsize": self._get_max_pool_size(),
             "block": True,
         }
 
@@ -417,6 +412,14 @@ class LiveDAO(DAOImplementation):
                 kwargs["cert_reqs"] = "CERT_NONE"
 
         return connection_from_url(host, **kwargs)
+
+    def _get_timeout(self):
+        return float(self.dao.get_service_setting(
+            "TIMEOUT", default=self.dao.get_setting("DEFAULT_TIMEOUT", 2)))
+
+    def _get_max_pool_size(self):
+        return int(self.dao.get_service_setting(
+            "POOL_SIZE", default=self.dao.get_setting("DEFAULT_POOL_SIZE", 9)))
 
     def _prometheus_timeout(self):
         prometheus_timeout.labels(self.dao.service_name()).inc()
