@@ -73,16 +73,3 @@ def get_cache_value(key):
 
     if key in cache:
         return cache[key]
-
-
-def delete_cache_value(key):
-    """
-    If local cache is being used,
-    this will delete the cache value, if it exists.
-    """
-    cache = _get_local_cache()
-    if cache is None:
-        return
-
-    if key in cache:
-        del cache[key]
