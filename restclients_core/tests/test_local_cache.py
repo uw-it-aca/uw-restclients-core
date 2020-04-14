@@ -1,7 +1,8 @@
 from unittest import TestCase
 from threading import currentThread
-from restclients_core.util.local_cache import (local_cache, set_cache_value,
-                                               get_cache_value, LOCAL_CACHE)
+from restclients_core.util.local_cache import (
+    local_cache, set_cache_value, get_cache_value, delete_cache_value,
+    LOCAL_CACHE)
 
 
 class TestCache(TestCase):
@@ -33,6 +34,9 @@ class TestCache(TestCase):
     def test_no_cache(self):
         v1 = test_method1("init none")
         self.assertEquals(v1, "init none")
+
+        delete_cache_value("test_method1_key")
+        self.assertIsNone(get_cache_value("test_method1_key"))
 
         v2 = test_method1("second, none")
         self.assertEquals(v2, "second, none")

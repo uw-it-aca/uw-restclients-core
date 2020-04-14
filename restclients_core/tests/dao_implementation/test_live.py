@@ -86,6 +86,9 @@ class TestLive(TestCase):
         self.assertEquals(response.headers["X-Custom-Header"], "header-test")
         self.assertEquals(response.getheader("X-Custom-Header"), "header-test")
 
+    def test_clear_cached_response(self):
+        self.assertIsNone(TDAO().clear_cached_response('/ok'))
+
     def test_missing_resource(self):
         response = TDAO().getURL('/missing.json', {})
         self.assertEquals(response.status, 404)

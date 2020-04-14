@@ -1,7 +1,8 @@
 import random
 import datetime
 from restclients_core.util.mock import load_resource_from_path
-from restclients_core.util.local_cache import set_cache_value, get_cache_value
+from restclients_core.util.local_cache import (
+    set_cache_value, get_cache_value, delete_cache_value)
 from restclients_core.models import MockHTTP, CacheHTTP
 from restclients_core.exceptions import (
     ImproperlyConfigured, DataFailureException)
@@ -227,6 +228,9 @@ class DAO(object):
         implementation = self.get_setting("DAO_CACHE_CLASS", None)
         return self._getModule(implementation, NoCache)
 
+    def clear_cached_response(self, url):
+        self.get_cache().deleteCache(self.service_name(), url)
+
     def get_implementation(self):
         implementation = self.get_service_setting("DAO_CLASS", None)
 
@@ -238,8 +242,10 @@ class DAO(object):
             return self._get_mock_implementation()
 
         # Legacy settings support
-        live = "restclients.dao_implementation.%s.Live" % (self.service_name())
-        mock = "restclients.dao_implementation.%s.File" % (self.service_name())
+        live = "restclients.dao_implementation.{}.Live".format(
+            self.service_name())
+        mock = "restclients.dao_implementation.{}.File".format(
+            self.service_name())
 
         if live == implementation:
             return self._get_live_implementation()
@@ -274,15 +280,15 @@ class DAO(object):
         if default is None:
             default = self.get_default_service_setting(key)
 
-        service_key = "%s_%s" % (self.service_name().upper(), key)
+        service_key = "{}_{}".format(self.service_name().upper(), key)
 
-        if hasattr(settings, "RESTCLIENTS_%s" % service_key):
+        if hasattr(settings, "RESTCLIENTS_{}".format(service_key)):
             return self.get_setting(service_key, default)
         else:
             return self.get_setting(key, default)
 
     def get_setting(self, key, default=None):
-        key = "RESTCLIENTS_%s" % key
+        key = "RESTCLIENTS_{}".format(key)
         return getattr(settings, key, default)
 
     def _getModule(self, value, default_class, args=[]):
@@ -293,13 +299,13 @@ class DAO(object):
         try:
             mod = import_module(module)
         except ImportError as e:
-            raise ImproperlyConfigured('Error importing module %s: "%s"' %
-                                       (module, e))
+            raise ImproperlyConfigured(
+                "Error importing module {}: {}".format(module, e))
         try:
             config_module = getattr(mod, attr)
         except AttributeError:
-            raise ImproperlyConfigured('Module "%s" does not define a '
-                                       '"%s" class' % (module, attr))
+            raise ImproperlyConfigured(
+                "Module {} missing {} class".format(module, attr))
         return config_module(*args)
 
     def _log(self, *args, **kwargs):
@@ -311,11 +317,11 @@ class DAO(object):
         cache_class = (response.cache_class if hasattr(response, 'cache_class')
                        else "None")
         total_time = time.time() - kwargs.get('start_time')
-        msg = (('service:%s method:%s url:%s status:%s from_cache:%s ' +
-               'cache_class:%s time:%s')
-               % (kwargs.get('service'), kwargs.get('method'),
-                  kwargs.get('url'), response.status,
-                  from_cache, cache_class, total_time))
+        msg = (("service:{} method:{} url:{} status:{} from_cache:{} " +
+                "cache_class:{} time:{}").format(
+                   kwargs.get('service'), kwargs.get('method'),
+                   kwargs.get('url'), response.status,
+                   from_cache, cache_class, total_time))
         logger.info(msg)
 
     def should_log(self):
@@ -451,7 +457,7 @@ class MockDAO(DAOImplementation):
     def load(self, method, url, headers, body):
         service = self._service_name
 
-        cache_key = "%s-%s" % (service, url)
+        cache_key = "{}-{}".format(service, url)
         value = get_cache_value(cache_key)
         if value:
             return value

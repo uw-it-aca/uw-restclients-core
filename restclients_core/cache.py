@@ -9,4 +9,4 @@ class NoCache(object):
         pass
 
     def deleteCache(self, service, url):
-        pass
+        return None
