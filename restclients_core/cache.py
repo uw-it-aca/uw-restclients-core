@@ -7,3 +7,6 @@ class NoCache(object):
 
     def processResponse(self, service, url, response):
         pass
+
+    def deleteCache(self, service, url):
+        return None

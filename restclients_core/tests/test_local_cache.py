@@ -1,7 +1,7 @@
 from unittest import TestCase
 from threading import currentThread
-from restclients_core.util.local_cache import (local_cache, set_cache_value,
-                                               get_cache_value, LOCAL_CACHE)
+from restclients_core.util.local_cache import (
+    local_cache, set_cache_value, get_cache_value, LOCAL_CACHE)
 
 
 class TestCache(TestCase):
