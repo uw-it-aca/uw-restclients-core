@@ -42,9 +42,8 @@ class DAO(object):
     """
     Base class for per-service interfaces.
     """
-    def __init__(self):
-        self.implementation = None
 
+    def __init__(self):
         # format is ISO 8601
         log_start_str = self.get_service_setting("TIMING_START", None)
         log_end_str = self.get_service_setting("TIMING_END", None)
