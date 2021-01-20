@@ -1,13 +1,11 @@
-from restclients_core.tests.dao_implementation.test_live import TDAO
-from unittest import TestCase, skipUnless
+from restclients_core.tests.dao_implementation.test_backend import TDAO
+from unittest import TestCase
 from prometheus_client import generate_latest, REGISTRY
-import os
 
 
-@skipUnless("RUN_LIVE_TESTS" in os.environ, "RUN_LIVE_TESTS=1 to run tests")
 class TestPrometheusObservations(TestCase):
     def test_prometheus_observation(self):
-        response = TDAO().getURL('/ok', {})
+        response = TDAO().getURL('/ok')
 
         metrics = generate_latest(REGISTRY).decode('utf-8')
         self.assertRegexpMatches(
