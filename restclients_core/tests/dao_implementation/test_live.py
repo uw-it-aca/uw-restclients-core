@@ -44,10 +44,10 @@ class SSLClientCertTDAO(DAO):
             return "https://localhost:9443/"
 
         if "CERT_FILE" == key:
-            return "travis-ci/client-cert.pem"
+            return "test/certs/client-cert.pem"
 
         if "KEY_FILE" == key:
-            return "travis-ci/client_key.pem"
+            return "test/certs/client_key.pem"
 
 
 class SSLBadFailTDAO(DAO):
