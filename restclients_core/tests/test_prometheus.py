@@ -4,8 +4,9 @@ from prometheus_client import generate_latest, REGISTRY
 
 
 class TestPrometheusObservations(TestCase):
-
     def test_prometheus_observation(self):
+        response = TDAO().getURL('/ok')
+
         metrics = generate_latest(REGISTRY).decode('utf-8')
         self.assertRegexpMatches(
             metrics,
