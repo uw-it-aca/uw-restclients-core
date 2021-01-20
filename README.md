@@ -1,7 +1,7 @@
 # Base class and utils for UW REST Clients
 
 [![Build Status](https://github.com/uw-it-aca/uw-restclients-core/workflows/tests/badge.svg?branch=master)](https://github.com/uw-it-aca/uw-restclients-core/actions)
-[![Coverage Status](https://coveralls.io/repos/uw-it-aca/uw-restclients-core/badge.png?branch=master)](https://coveralls.io/r/uw-it-aca/uw-restclients-core?branch=master)
+[![Coverage Status](https://coveralls.io/repos/uw-it-aca/uw-restclients-core/badge.svg?branch=master)](https://coveralls.io/r/uw-it-aca/uw-restclients-core?branch=master)
 [![PyPi Version](https://img.shields.io/pypi/v/uw-restclients-core.svg)](https://pypi.python.org/pypi/uw-restclients-core)
 ![Python versions](https://img.shields.io/pypi/pyversions/uw-restclients-core.svg)
 
