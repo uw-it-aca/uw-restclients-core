@@ -33,9 +33,9 @@ class myHandler(BaseHTTPRequestHandler):
         return
 
 
-cert_path = os.path.join(os.path.dirname(__file__), 'server-cert.pem')
-key_path = os.path.join(os.path.dirname(__file__), 'server_key.pem')
-ca_path = os.path.join(os.path.dirname(__file__), 'cacert.pem')
+cert_path = os.path.join(os.path.dirname(__file__), 'certs/server-cert.pem')
+key_path = os.path.join(os.path.dirname(__file__), 'certs/server_key.pem')
+ca_path = os.path.join(os.path.dirname(__file__), 'certs/cacert.pem')
 
 
 server = HTTPServer(('localhost', PORT_NUMBER), myHandler)
