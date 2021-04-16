@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 import random
 import datetime
 from restclients_core.util.mock import load_resource_from_path

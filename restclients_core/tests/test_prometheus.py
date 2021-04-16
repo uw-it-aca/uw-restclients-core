@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 from restclients_core.tests.dao_implementation.test_backend import TDAO
 from unittest import TestCase
 from prometheus_client import generate_latest, REGISTRY
