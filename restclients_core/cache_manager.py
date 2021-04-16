@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 """
 This is a class that makes it possible to bulk-save cache entries.
 For restclients methods that use threading, this can be used to prevent
