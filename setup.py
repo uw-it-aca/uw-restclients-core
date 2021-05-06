@@ -21,10 +21,10 @@ setup(
     author="UW-IT AXDD",
     author_email="aca-it@uw.edu",
     include_package_data=True,
-    install_requires=['commonconf>=1.0',
+    install_requires=['commonconf',
                       'urllib3',
                       'python-dateutil',
-                      'prometheus-client>=0.7,<1.0',
+                      'prometheus-client',
                       'mock'],
     license='Apache License, Version 2.0',
     description=('Core code for clients of a variety of RESTful web services '
