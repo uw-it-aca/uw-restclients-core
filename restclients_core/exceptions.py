@@ -19,8 +19,9 @@ class DataFailureException(Exception):
         self.msg = msg
 
     def __str__(self):
-        return ("Error fetching %s.  Status code: %s.  Message: %s." %
-                (self.url, self.status, self.msg))
+        return (
+            "Error fetching {}.  Status code: {}.  Message: {}.".format(
+                self.url, self.status, self.msg))
 
 
 class InvalidRegID(Exception):

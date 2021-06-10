@@ -124,7 +124,7 @@ class Model(object):
 
     def __str__(self):
         return ", ".join([
-            "%s: %s" % (k, getattr(self, k))
+            "{}: {}".format(k, getattr(self, k))
             for k, v in sorted(self.__class__.__dict__.items())
             if issubclass(type(v), BaseField)])
 
