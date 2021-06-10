@@ -20,8 +20,8 @@ class DataFailureException(Exception):
 
     def __str__(self):
         return (
-            "Error fetching {}.  Status code: {}.  Message: {}.".format
-                (self.url, self.status, self.msg))
+            "Error fetching {}.  Status code: {}.  Message: {}.".format(
+                self.url, self.status, self.msg))
 
 
 class InvalidRegID(Exception):
