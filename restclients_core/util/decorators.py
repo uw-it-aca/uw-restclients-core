@@ -8,7 +8,8 @@ def use_mock(*args):
     kw_args = {}
 
     for service in args:
-        key = 'RESTCLIENTS_%s_DAO_CLASS' % service.service_name().upper()
+        key = "RESTCLIENTS_{}_DAO_CLASS".format(
+            service.service_name().upper())
 
         kw_args[key] = 'Mock'
 
