@@ -41,7 +41,7 @@ class BaseField(object):
         if not hasattr(instance, "__rcm_timestamp"):
             setattr(instance, "__rcm_timestamp", time.time())
 
-        key = "%s-%s" % (id(instance), getattr(instance, "__rcm_timestamp"))
+        key = "{}-{}".format(id(instance), getattr(instance, "__rcm_timestamp"))
         return key
 
     def clean(self, instance):

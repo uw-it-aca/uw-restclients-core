@@ -12,4 +12,4 @@ class TestModelString(TestCase):
             one = models.IntegerField()
 
         m = ModelTest(number="number", one=1)
-        self.assertEquals("%s" % m, "number: number, one: 1")
+        self.assertEquals("{}".format(m), "number: number, one: 1")

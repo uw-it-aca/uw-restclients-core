@@ -129,7 +129,7 @@ class Backend(MockDAO):
     def load(self, method, url, headers, body):
         response = MockHTTP()
         response.status = 200
-        response.data = "ok - %s" % method
+        response.data = "ok - {}".format(method)
         return response
 
 

@@ -91,13 +91,13 @@ def open_file(orig_file_path):
     unquoted = unquote(orig_file_path)
     paths = [
         convert_to_platform_safe(orig_file_path),
-        "%s/index.html" % (convert_to_platform_safe(orig_file_path)),
+        "{}/index.html".format(convert_to_platform_safe(orig_file_path)),
         orig_file_path,
-        "%s/index.html" % orig_file_path,
+        "{}/index.html".format(orig_file_path),
         convert_to_platform_safe(unquoted),
-        "%s/index.html" % (convert_to_platform_safe(unquoted)),
+        "{}/index.html".format(convert_to_platform_safe(unquoted)),
         unquoted,
-        "%s/index.html" % unquoted,
+        "{}/index.html".format(unquoted),
         ]
 
     file_path = None

@@ -18,7 +18,7 @@ from urllib3.util.retry import Retry
 from urllib3.exceptions import HTTPError
 from prometheus_client import Histogram, Counter
 from logging import getLogger
-import dateutil.parser
+from dateutil.parser import parse
 from urllib.parse import urlparse
 import time
 import ssl
@@ -52,8 +52,8 @@ class DAO(object):
         log_end_str = self.get_service_setting("TIMING_END", None)
 
         if log_start_str is not None and log_end_str is not None:
-            self.log_start = dateutil.parser.parse(log_start_str)
-            self.log_end = dateutil.parser.parse(log_end_str)
+            self.log_start = parse(log_start_str)
+            self.log_end = parse(log_end_str)
         else:
             self.log_start = None
             self.log_end = None

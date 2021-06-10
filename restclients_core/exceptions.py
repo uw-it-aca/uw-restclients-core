@@ -19,7 +19,8 @@ class DataFailureException(Exception):
         self.msg = msg
 
     def __str__(self):
-        return ("Error fetching %s.  Status code: %s.  Message: %s." %
+        return (
+            "Error fetching {}.  Status code: {}.  Message: {}.".format
                 (self.url, self.status, self.msg))
 
 
