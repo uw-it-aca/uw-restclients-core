@@ -14,6 +14,7 @@ from restclients_core.util.performance import PerformanceDegradation
 from importlib import import_module
 from commonconf import settings
 from urllib3 import connection_from_url
+from urllib3.util import Timeout
 from urllib3.util.retry import Retry
 from urllib3.exceptions import HTTPError
 from prometheus_client import Histogram, Counter
@@ -399,9 +400,12 @@ class LiveDAO(DAOImplementation):
         if verify_https is None:
             verify_https = True
 
+        timeout = Timeout(total=self._get_timeout(),
+                          connect=self._get_connect_timeout(),
+                          read=self._get_read_timeout())
         kwargs = {
             "retries": Retry(total=1, connect=0, read=0, redirect=1),
-            "timeout": self._get_timeout(),
+            "timeout": timeout,
             "maxsize": self._get_max_pool_size(),
             "block": True,
         }
@@ -421,13 +425,33 @@ class LiveDAO(DAOImplementation):
 
         return connection_from_url(host, **kwargs)
 
-    def _get_timeout(self):
+    def _get_connect_timeout(self):
         return float(self.dao.get_service_setting(
-            "TIMEOUT", default=self.dao.get_setting("DEFAULT_TIMEOUT", 2)))
+            "CONNECT_TIMEOUT",
+            default=self.dao.get_setting("DEFAULT_CONNECT_TIMEOUT", 1.5)))
 
     def _get_max_pool_size(self):
+        """
+        The maximum connections per host.
+        """
         return int(self.dao.get_service_setting(
-            "POOL_SIZE", default=self.dao.get_setting("DEFAULT_POOL_SIZE", 9)))
+            "POOL_SIZE",
+            default=self.dao.get_setting("DEFAULT_POOL_SIZE", 9)))
+
+    def _get_read_timeout(self):
+        return float(self.dao.get_service_setting(
+            "READ_TIMEOUT",
+            default=self.dao.get_setting("DEFAULT_READ_TIMEOUT", None)))
+
+    def _get_timeout(self):
+        """
+        This combines the connect and read timeouts; the read timeout will be
+        set to the time leftover from the connect attempt.
+        If both a connect timeout and a total are specified, or a read timeout
+        and a total are specified, the shorter timeout will be applied.
+        """
+        return float(self.dao.get_service_setting(
+            "TIMEOUT", default=self.dao.get_setting("DEFAULT_TIMEOUT", 2)))
 
     def _prometheus_timeout(self):
         prometheus_timeout.labels(self.dao.service_name()).inc()
