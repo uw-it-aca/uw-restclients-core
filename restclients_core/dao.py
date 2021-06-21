@@ -365,11 +365,12 @@ class LiveDAO(DAOImplementation):
 
     def load(self, method, url, headers, body):
         pool = self.get_pool()
-        timeout = pool.timeout.read_timeout
-
         try:
             return pool.urlopen(
-                method, url, body=body, headers=headers, timeout=timeout)
+                method, url, body=body, headers=headers,
+                timeout=pool.timeout, pool_timeout=1)
+            # will block for 1 sec if no connection is available
+            # then raise EmptyPoolError
         except ssl.SSLError as err:
             self._prometheus_ssl_error()
             raise
