@@ -131,9 +131,6 @@ class TestLive(TestCase):
         with override_settings(RESTCLIENTS_LIVE_TEST_TIMEOUT=1.5):
             self.assertEqual(live_dao._get_timeout(), 1.5)
 
-        with override_settings(RESTCLIENTS_LIVE_TEST_TIMEOUT='1.5'):
-            self.assertEqual(live_dao._get_timeout(), 1.5)
-
         with override_settings(RESTCLIENTS_DEFAULT_TIMEOUT=0.25):
             self.assertEqual(live_dao._get_timeout(), 0.25)
 
@@ -144,10 +141,10 @@ class TestLive(TestCase):
             self.assertEqual(live_dao._get_connect_timeout(), 1)
 
         with override_settings(RESTCLIENTS_DEFAULT_READ_TIMEOUT=0.7):
-            self.assertEqual(live_dao._get_connect_timeout(), 0.7)
+            self.assertEqual(live_dao._get_read_timeout(), 0.7)
 
         with override_settings(RESTCLIENTS_LIVE_TEST_READ_TIMEOUT=4):
-            self.assertEqual(live_dao._get_connect_timeout(), 4)
+            self.assertEqual(live_dao._get_read_timeout(), 4)
 
         with override_settings(RESTCLIENTS_LIVE_TEST_POOL_SIZE=5):
             self.assertEqual(live_dao._get_max_pool_size(), 5)
