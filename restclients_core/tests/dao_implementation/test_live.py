@@ -137,11 +137,15 @@ class TestLive(TestCase):
         with override_settings(RESTCLIENTS_DEFAULT_CONNECT_TIMEOUT=0.2):
             self.assertEqual(live_dao._get_connect_timeout(), 0.2)
 
+        self.assertIsNone(live_dao._get_connect_timeout())
+
         with override_settings(RESTCLIENTS_LIVE_TEST_CONNECT_TIMEOUT=1):
             self.assertEqual(live_dao._get_connect_timeout(), 1)
 
         with override_settings(RESTCLIENTS_DEFAULT_READ_TIMEOUT=0.7):
             self.assertEqual(live_dao._get_read_timeout(), 0.7)
+
+        self.assertIsNone(live_dao._get_read_timeout())
 
         with override_settings(RESTCLIENTS_LIVE_TEST_READ_TIMEOUT=4):
             self.assertEqual(live_dao._get_read_timeout(), 4)

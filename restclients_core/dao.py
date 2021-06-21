@@ -426,9 +426,10 @@ class LiveDAO(DAOImplementation):
         return connection_from_url(host, **kwargs)
 
     def _get_connect_timeout(self):
-        return float(self.dao.get_service_setting(
+        value = self.dao.get_service_setting(
             "CONNECT_TIMEOUT",
-            default=self.dao.get_setting("DEFAULT_CONNECT_TIMEOUT", 1.5)))
+            default=self.dao.get_setting("DEFAULT_CONNECT_TIMEOUT"))
+        return float(value) if value is not None else value
 
     def _get_max_pool_size(self):
         """
@@ -439,9 +440,10 @@ class LiveDAO(DAOImplementation):
             default=self.dao.get_setting("DEFAULT_POOL_SIZE", 9)))
 
     def _get_read_timeout(self):
-        return float(self.dao.get_service_setting(
+        value = self.dao.get_service_setting(
             "READ_TIMEOUT",
-            default=self.dao.get_setting("DEFAULT_READ_TIMEOUT", None)))
+            default=self.dao.get_setting("DEFAULT_READ_TIMEOUT"))
+        return float(value) if value is not None else value
 
     def _get_timeout(self):
         """
