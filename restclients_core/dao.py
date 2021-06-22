@@ -14,6 +14,7 @@ from restclients_core.util.performance import PerformanceDegradation
 from importlib import import_module
 from commonconf import settings
 from urllib3 import connection_from_url
+from urllib3.util import Timeout
 from urllib3.util.retry import Retry
 from urllib3.exceptions import HTTPError
 from prometheus_client import Histogram, Counter
@@ -364,11 +365,14 @@ class LiveDAO(DAOImplementation):
 
     def load(self, method, url, headers, body):
         pool = self.get_pool()
-        timeout = pool.timeout.read_timeout
-
+        timeout = pool.timeout
         try:
             return pool.urlopen(
-                method, url, body=body, headers=headers, timeout=timeout)
+                method, url, body=body, headers=headers,
+                timeout=timeout,
+                pool_timeout=timeout.connect_timeout)
+            # will block for 1 sec if no connection is available
+            # then raise EmptyPoolError
         except ssl.SSLError as err:
             self._prometheus_ssl_error()
             raise
@@ -399,9 +403,11 @@ class LiveDAO(DAOImplementation):
         if verify_https is None:
             verify_https = True
 
+        timeout = Timeout(connect=self._get_connect_timeout(),
+                          read=self._get_timeout())
         kwargs = {
             "retries": Retry(total=1, connect=0, read=0, redirect=1),
-            "timeout": self._get_timeout(),
+            "timeout": timeout,
             "maxsize": self._get_max_pool_size(),
             "block": True,
         }
@@ -421,13 +427,28 @@ class LiveDAO(DAOImplementation):
 
         return connection_from_url(host, **kwargs)
 
+    def _get_connect_timeout(self):
+        """
+        The maximum amount of time (in seconds) to wait for a connection
+        attempt to a server to succeed
+        """
+        return float(self.dao.get_service_setting("CONNECT_TIMEOUT",
+                     self.dao.get_setting("DEFAULT_CONNECT_TIMEOUT", 3)))
+
     def _get_timeout(self):
-        return float(self.dao.get_service_setting(
-            "TIMEOUT", default=self.dao.get_setting("DEFAULT_TIMEOUT", 2)))
+        """
+        The maximum amount of time (in seconds) to wait between
+        consecutive READ operations for a response from the server.
+        """
+        return float(self.dao.get_service_setting("TIMEOUT",
+                     self.dao.get_setting("DEFAULT_TIMEOUT", 10)))
 
     def _get_max_pool_size(self):
-        return int(self.dao.get_service_setting(
-            "POOL_SIZE", default=self.dao.get_setting("DEFAULT_POOL_SIZE", 9)))
+        """
+        The maximum connections per host.
+        """
+        return int(self.dao.get_service_setting("POOL_SIZE",
+                   self.dao.get_setting("DEFAULT_POOL_SIZE", 10)))
 
     def _prometheus_timeout(self):
         prometheus_timeout.labels(self.dao.service_name()).inc()
