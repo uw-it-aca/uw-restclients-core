@@ -128,27 +128,22 @@ class TestLive(TestCase):
 
     def test_settings_defaults(self):
         live_dao = TDAO().get_implementation()
-        with override_settings(RESTCLIENTS_LIVE_TEST_TIMEOUT=1.5):
-            self.assertEqual(live_dao._get_timeout(), 1.5)
 
-        with override_settings(RESTCLIENTS_DEFAULT_TIMEOUT=0.25):
-            self.assertEqual(live_dao._get_timeout(), 0.25)
+        self.assertEqual(live_dao._get_connect_timeout(), 3)
 
         with override_settings(RESTCLIENTS_DEFAULT_CONNECT_TIMEOUT=0.2):
             self.assertEqual(live_dao._get_connect_timeout(), 0.2)
 
-        self.assertIsNone(live_dao._get_connect_timeout())
+        with override_settings(RESTCLIENTS_LIVE_TEST_CONNECT_TIMEOUT=0.1):
+            self.assertEqual(live_dao._get_connect_timeout(), 0.1)
 
-        with override_settings(RESTCLIENTS_LIVE_TEST_CONNECT_TIMEOUT=1):
-            self.assertEqual(live_dao._get_connect_timeout(), 1)
+        self.assertEqual(live_dao._get_timeout(), 10)
 
-        with override_settings(RESTCLIENTS_DEFAULT_READ_TIMEOUT=0.7):
-            self.assertEqual(live_dao._get_read_timeout(), 0.7)
+        with override_settings(RESTCLIENTS_LIVE_TEST_TIMEOUT=5):
+            self.assertEqual(live_dao._get_timeout(), 5)
 
-        self.assertIsNone(live_dao._get_read_timeout())
-
-        with override_settings(RESTCLIENTS_LIVE_TEST_READ_TIMEOUT=4):
-            self.assertEqual(live_dao._get_read_timeout(), 4)
+        with override_settings(RESTCLIENTS_DEFAULT_TIMEOUT=0.25):
+            self.assertEqual(live_dao._get_timeout(), 0.25)
 
         with override_settings(RESTCLIENTS_LIVE_TEST_POOL_SIZE=5):
             self.assertEqual(live_dao._get_max_pool_size(), 5)
