@@ -432,23 +432,23 @@ class LiveDAO(DAOImplementation):
         The maximum amount of time (in seconds) to wait for a connection
         attempt to a server to succeed
         """
-        default = self.dao.get_setting("DEFAULT_CONNECT_TIMEOUT", 3)
-        return float(self.dao.get_service_setting("CONNECT_TIMEOUT", default))
+        return float(self.dao.get_service_setting("CONNECT_TIMEOUT",
+                     self.dao.get_setting("DEFAULT_CONNECT_TIMEOUT", 3)))
 
     def _get_timeout(self):
         """
         The maximum amount of time (in seconds) to wait between
         consecutive READ operations for a response from the server.
         """
-        default = self.dao.get_setting("DEFAULT_TIMEOUT", 10)
-        return float(self.dao.get_service_setting("TIMEOUT", default))
+        return float(self.dao.get_service_setting("TIMEOUT",
+                     self.dao.get_setting("DEFAULT_TIMEOUT", 10)))
 
     def _get_max_pool_size(self):
         """
         The maximum connections per host.
         """
-        default = self.dao.get_setting("DEFAULT_POOL_SIZE", 10)
-        return int(self.dao.get_service_setting("POOL_SIZE", default))
+        return int(self.dao.get_service_setting("POOL_SIZE",
+                   self.dao.get_setting("DEFAULT_POOL_SIZE", 10)))
 
     def _prometheus_timeout(self):
         prometheus_timeout.labels(self.dao.service_name()).inc()
