@@ -19,11 +19,6 @@ class TDAO(DAO):
                     'test_backend.Backend')
 
 
-class TCDAO(TDAO):
-    def get_cache(self):
-        return Cache()
-
-
 class E1DAO(TDAO):
     def get_default_service_setting(self, key):
         if "DAO_CLASS" == key:
@@ -38,7 +33,25 @@ class E2DAO(TDAO):
                     'test_backend.BackendX')
 
 
+class TCache():
+    def getCache(self, service, url, headers):
+        if url == '/ok':
+            response = CacheHTTP()
+            response.cache_class = self.__class__
+            response.status = 200
+            response.data = 'ok - GET'
+            return {'response': response}
+
+    def processResponse(self, service, url, response):
+        response.status = 404
+        response.cache_class = self.__class__
+        return {'response': response}
+
+
 class TestBackend(TestCase):
+    def setUp(self):
+        DAO._cache_instance = None
+
     def test_get(self):
         response = TDAO().getURL('/ok')
         self.assertEquals(response.data, 'ok - GET')
@@ -100,29 +113,48 @@ class TestBackend(TestCase):
                               ' cache_class:None')
             self.assertGreater(float(time), 0)
 
+    @skipUnless(hasattr(TestCase, 'assertLogs'), 'Python < 3.4')
+    @override_settings(RESTCLIENTS_TIMING_LOG_ENABLED=True,
+                       RESTCLIENTS_TIMING_LOG_RATE=1.0,
+                       RESTCLIENTS_DAO_CACHE_CLASS=(
+                           'restclients_core.tests.dao_implementation.'
+                           'test_backend.TCache'))
+    def test_log_cache(self):
         # Cached response
         with self.assertLogs('restclients_core.dao', level='INFO') as cm:
-            response = TCDAO().getURL('/ok')
+            response = TDAO().getURL('/ok')
             self.assertEquals(len(cm.output), 1)
             (msg, time) = cm.output[0].split(' time:')
             self.assertEquals(msg,
                               'INFO:restclients_core.dao:service:backend_test '
                               'method:GET url:/ok status:200 from_cache:yes'
-                              ' cache_class:<class \'restclients_core.tests'
-                              '.dao_implementation.test_backend.Cache\'>')
+                              ' cache_class:TCache')
             self.assertGreater(float(time), 0)
 
         # Cached post response
         with self.assertLogs('restclients_core.dao', level='INFO') as cm:
-            response = TCDAO().getURL('/ok2')
+            response = TDAO().getURL('/ok2')
             self.assertEquals(len(cm.output), 1)
             (msg, time) = cm.output[0].split(' time:')
             self.assertEquals(msg,
                               'INFO:restclients_core.dao:service:backend_test '
                               'method:GET url:/ok2 status:404 from_cache:yes'
-                              ' cache_class:<class \'restclients_core.tests'
-                              '.dao_implementation.test_backend.Cache\'>')
+                              ' cache_class:TCache')
             self.assertGreater(float(time), 0)
+
+    @override_settings(RESTCLIENTS_DAO_CACHE_CLASS=(
+                           'restclients_core.tests.dao_implementation.'
+                           'test_backend.TCache'))
+    def test_cache_backend(self):
+        cache1 = TDAO().get_cache()
+        cache2 = TDAO().get_cache()
+        self.assertTrue(cache1 == cache2, 'Cache objects are same instance')
+
+        cache3 = E1DAO().get_cache()
+        self.assertTrue(cache1 == cache3, 'Cache objects are same instance')
+
+        cache4 = E2DAO().get_cache()
+        self.assertTrue(cache1 == cache4, 'Cache objects are same instance')
 
 
 class Backend(MockDAO):
@@ -131,18 +163,3 @@ class Backend(MockDAO):
         response.status = 200
         response.data = "ok - {}".format(method)
         return response
-
-
-class Cache(NoCache):
-    def getCache(self, service, url, headers):
-        if url == '/ok':
-            response = CacheHTTP()
-            response.cache_class = self.__class__
-            response.status = 200
-            response.data = 'ok - GET'
-            return {'response': response}
-
-    def processResponse(self, service, url, response):
-        response.status = 404
-        response.cache_class = self.__class__
-        return {'response': response}
