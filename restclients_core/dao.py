@@ -46,6 +46,7 @@ class DAO(object):
     """
     Base class for per-service interfaces.
     """
+    _cache_instance = None
 
     def __init__(self):
         # format is ISO 8601
@@ -228,8 +229,10 @@ class DAO(object):
             (int(status) // 100) * 100)
 
     def get_cache(self):
-        implementation = self.get_setting("DAO_CACHE_CLASS", None)
-        return self._getModule(implementation, NoCache)
+        if DAO._cache_instance is None:
+            implementation = self.get_setting("DAO_CACHE_CLASS", None)
+            DAO._cache_instance = self._getModule(implementation, NoCache)
+        return DAO._cache_instance
 
     def clear_cached_response(self, url):
         self.get_cache().deleteCache(self.service_name(), url)
@@ -316,9 +319,9 @@ class DAO(object):
             return
 
         from_cache = 'yes' if kwargs.get('cached') else 'no'
+        cache_class = self.get_cache().__class__.__qualname__ if (
+            kwargs.get('cached')) else 'None'
         response = kwargs.get('response')
-        cache_class = (response.cache_class if hasattr(response, 'cache_class')
-                       else "None")
         total_time = time.time() - kwargs.get('start_time')
         msg = (("service:{} method:{} url:{} status:{} from_cache:{} " +
                 "cache_class:{} time:{}").format(
