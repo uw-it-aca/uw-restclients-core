@@ -83,7 +83,7 @@ class Model(object):
 
     def _delete(self, field_id):
         self._init()
-        del(self._field_values[field_id])
+        del (self._field_values[field_id])
 
     def _track_field(self, field):
         self._dynamic_fields.add(weakref.ref(field))

@@ -76,7 +76,7 @@ class TestModelBase(TestCase):
         self.assertEquals(model.times, now.time())
         self.assertEquals(model.urls, "http://example.com/path")
 
-        del(model.urls)
+        del (model.urls)
         self.assertIsNone(model.urls)
 
     def test_2_fields_2_instances(self):
