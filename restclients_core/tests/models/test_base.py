@@ -1,4 +1,4 @@
-# Copyright 2021 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
@@ -76,7 +76,7 @@ class TestModelBase(TestCase):
         self.assertEquals(model.times, now.time())
         self.assertEquals(model.urls, "http://example.com/path")
 
-        del(model.urls)
+        del (model.urls)
         self.assertIsNone(model.urls)
 
     def test_2_fields_2_instances(self):
