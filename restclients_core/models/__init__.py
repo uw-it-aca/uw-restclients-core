@@ -1,4 +1,4 @@
-# Copyright 2021 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 import re
@@ -83,7 +83,7 @@ class Model(object):
 
     def _delete(self, field_id):
         self._init()
-        del(self._field_values[field_id])
+        del (self._field_values[field_id])
 
     def _track_field(self, field):
         self._dynamic_fields.add(weakref.ref(field))
