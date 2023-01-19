@@ -32,7 +32,7 @@ class Thread(threading.Thread):
             self._use_thread = getattr(
                 settings, "RESTCLIENTS_USE_THREADING", False)
 
-        super(Thread, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @property
     def _db_compatible(self):
@@ -40,24 +40,31 @@ class Thread(threading.Thread):
 
     def start(self):
         if self._use_thread:
-            super(Thread, self).start()
+            super().start()
 
         else:
             # Needed to test failures in the threads.
             # But it can't be on all the time - sqlite dbs aren't shared to
             # threads.
             if getattr(settings, "RESTCLIENTS_USE_INLINE_THREADS", False):
-                super(Thread, self).start()
-                super(Thread, self).join()
+                super().start()
+                super().join()
             else:
                 self.run()
 
+    """
+    Subclasses should call final() in their overridden run().
+    """
+    def run(self):
+        # Override to perform specific tasks.
+        self.final()
+
     def join(self):
         if self._use_thread:
-            return super(Thread, self).join()
+            return super().join()
         return True
 
-    def close_db_connection(self):
+    def final(self):
         if (self._use_thread and db_connection is not None and
                 not db_connection.in_atomic_block):
             db_connection.close()
@@ -67,16 +74,15 @@ class GenericPrefetchThread(Thread):
     method = None
 
     def run(self):
-        if self.method is None:
-            return
-        try:
-            self.method()
-        except Exception as ex:
-            # Errors in prefetching should also manifest during actual
-            # processing, where they can be handled appropriately
-            pass
+        if self.method is not None:
+            try:
+                self.method()
+            except Exception as ex:
+                # Errors in prefetching should also manifest during actual
+                # processing, where they can be handled appropriately
+                pass
 
-        self.close_db_connection()
+        self.final()
 
 
 def generic_prefetch(method, args):
