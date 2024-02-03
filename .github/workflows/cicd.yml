@@ -24,7 +24,7 @@ name: tests
 
 env:
   APP_NAME: restclients_core
-  COVERAGE_PYTHON_VERSION: 3.10
+  COVERAGE_PYTHON_VERSION: '3.10'
 
 on:
   push:
@@ -42,7 +42,10 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version:
+          - '3.8'
+          - '3.9'
+          - '3.10'
 
     steps:
       - name: Checkout Repo
