@@ -1,8 +1,7 @@
 # Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from threading import currentThread
-
+from threading import current_thread
 
 LOCAL_CACHE = {}
 
@@ -32,18 +31,18 @@ class local_cache(object):
 
     # These handle context managers, and are used by the others
     def __enter__(self, *args, **kwargs):
-        thread = currentThread()
+        thread = current_thread()
 
         LOCAL_CACHE[thread] = {}
         return self
 
     def __exit__(*args, **kwargs):
-        thread = currentThread()
+        thread = current_thread()
         del LOCAL_CACHE[thread]
 
 
 def _get_local_cache():
-    thread = currentThread()
+    thread = current_thread()
     if thread in LOCAL_CACHE:
         return LOCAL_CACHE[thread]
     if hasattr(thread, 'parent'):

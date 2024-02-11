@@ -59,22 +59,22 @@ class TestModelBase(TestCase):
         model.times = now.time()
         model.urls = "http://example.com/path"
 
-        self.assertEquals(model.bools, True)
-        self.assertEquals(model.chars, "Char value")
-        self.assertEquals(model.dates, now.date())
-        self.assertEquals(model.datetimes, now)
-        self.assertEquals(model.decimals, 12.1)
-        self.assertEquals(model.floats, 1.2312)
-        self.assertEquals(model.ints, 21)
-        self.assertEquals(model.nullbools, False)
-        self.assertEquals(model.posints, 113234234)
-        self.assertEquals(model.possmalls, 10)
-        self.assertEquals(model.slugs, "ok")
-        self.assertEquals(model.smallints, -1)
-        self.assertEquals(model.texts, "text string")
-        self.assertEquals(model.texts2, "making sure fields are different")
-        self.assertEquals(model.times, now.time())
-        self.assertEquals(model.urls, "http://example.com/path")
+        self.assertEqual(model.bools, True)
+        self.assertEqual(model.chars, "Char value")
+        self.assertEqual(model.dates, now.date())
+        self.assertEqual(model.datetimes, now)
+        self.assertEqual(model.decimals, 12.1)
+        self.assertEqual(model.floats, 1.2312)
+        self.assertEqual(model.ints, 21)
+        self.assertEqual(model.nullbools, False)
+        self.assertEqual(model.posints, 113234234)
+        self.assertEqual(model.possmalls, 10)
+        self.assertEqual(model.slugs, "ok")
+        self.assertEqual(model.smallints, -1)
+        self.assertEqual(model.texts, "text string")
+        self.assertEqual(model.texts2, "making sure fields are different")
+        self.assertEqual(model.times, now.time())
+        self.assertEqual(model.urls, "http://example.com/path")
 
         del (model.urls)
         self.assertIsNone(model.urls)
@@ -92,10 +92,10 @@ class TestModelBase(TestCase):
         m2.f1 = "m2_f1"
         m2.f2 = "m2_f2"
 
-        self.assertEquals(m1.f1, "m1_f1")
-        self.assertEquals(m1.f2, "m1_f2")
-        self.assertEquals(m2.f1, "m2_f1")
-        self.assertEquals(m2.f2, "m2_f2")
+        self.assertEqual(m1.f1, "m1_f1")
+        self.assertEqual(m1.f2, "m1_f2")
+        self.assertEqual(m2.f1, "m2_f1")
+        self.assertEqual(m2.f2, "m2_f2")
 
     def test_init_fields(self):
         class ModelTest(models.Model):
@@ -104,8 +104,8 @@ class TestModelBase(TestCase):
 
         m1 = ModelTest(f1="Input value", f2=True)
 
-        self.assertEquals(m1.f1, "Input value")
-        self.assertEquals(m1.f2, True)
+        self.assertEqual(m1.f1, "Input value")
+        self.assertEqual(m1.f2, True)
 
     def test_default_values(self):
         class ModelTest(models.Model):
@@ -115,11 +115,11 @@ class TestModelBase(TestCase):
         m1 = ModelTest()
         m2 = ModelTest(f1="override")
 
-        self.assertEquals(m1.f1, "Has Default")
-        self.assertEquals(m1.f2, None)
+        self.assertEqual(m1.f1, "Has Default")
+        self.assertEqual(m1.f2, None)
 
-        self.assertEquals(m2.f1, "override")
-        self.assertEquals(m2.f2, None)
+        self.assertEqual(m2.f1, "override")
+        self.assertEqual(m2.f2, None)
 
     def test_char_choices(self):
         CHOICES = (('ok', 'OK!'), ('not_ok', 'Not OK!'))
@@ -129,12 +129,12 @@ class TestModelBase(TestCase):
             f2 = models.CharField(default='ok2')
 
         m1 = ModelTest()
-        self.assertEquals(m1.f1, 'ok')
-        self.assertEquals(m1.get_f1_display(), 'OK!')
+        self.assertEqual(m1.f1, 'ok')
+        self.assertEqual(m1.get_f1_display(), 'OK!')
 
         m1.f1 = 'not_ok'
-        self.assertEquals(m1.f1, 'not_ok')
-        self.assertEquals(m1.get_f1_display(), 'Not OK!')
+        self.assertEqual(m1.f1, 'not_ok')
+        self.assertEqual(m1.get_f1_display(), 'Not OK!')
 
         with self.assertRaises(AttributeError):
             m1.get_f2_display()
@@ -167,4 +167,4 @@ class TestModelBase(TestCase):
         gc.collect()
         after_2 = match_count()
 
-        self.assertEquals(starting, after_2)
+        self.assertEqual(starting, after_2)

@@ -22,7 +22,7 @@ class Thread(threading.Thread):
     parent = None
 
     def __init__(self, *args, **kwargs):
-        self.parent = threading.currentThread()
+        self.parent = threading.current_thread()
 
         if self._db_compatible:
             self._use_thread = not getattr(
