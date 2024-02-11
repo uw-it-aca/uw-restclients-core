@@ -87,7 +87,8 @@ class TestLive(TestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(response.data, b'ok')
         self.assertEqual(response.headers["X-Custom-Header"], "header-test")
-        self.assertEqual(response.getheader("X-Custom-Header"), "header-test")
+        self.assertEqual(response.headers.get("X-Custom-Header"),
+                         "header-test")
 
     def test_clear_cached_response(self):
         self.assertIsNone(TDAO().clear_cached_response('/ok'))
@@ -161,7 +162,8 @@ class TestLiveSSL(TestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(response.data, b'ok: ')
         self.assertEqual(response.headers["X-Custom-Header"], "header-test")
-        self.assertEqual(response.getheader("X-Custom-Header"), "header-test")
+        self.assertEqual(response.headers.get("X-Custom-Header"),
+                         "header-test")
 
     def test_ssl_client_cert(self):
         response = SSLClientCertTDAO().getURL('/ok', {})

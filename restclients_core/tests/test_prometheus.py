@@ -11,11 +11,11 @@ class TestPrometheusObservations(TestCase):
         response = TDAO().getURL('/ok')
 
         metrics = generate_latest(REGISTRY).decode('utf-8')
-        self.assertRegexpMatches(
+        self.assertRegex(
             metrics,
             r'.*\nrestclient_request_duration_seconds_bucket{le="0.005",'
             r'service="backend_test"} [1-9].*', metrics)
-        self.assertRegexpMatches(
+        self.assertRegex(
             metrics,
             r'.*\nrestclient_response_status_code_bucket{le="200.0",'
             r'service="backend_test"} [1-9].*', metrics)

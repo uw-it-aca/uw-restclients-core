@@ -32,7 +32,8 @@ class TestMock(TestCase):
         self.assertEqual(response.status, 202)
 
         self.assertEqual(response.headers["Custom"], "My Custom Value")
-        self.assertEqual(response.getheader("Custom"), "My Custom Value")
+        self.assertEqual(response.headers.get("Custom"),
+                         "My Custom Value")
 
     def test_plain_file_headers(self):
         response = TDAO().getURL('/with_only_headers.json', {})

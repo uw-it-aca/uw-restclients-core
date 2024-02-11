@@ -50,6 +50,12 @@ def load_resource_from_path(resource_dir,
                 url, orig_file_path, True)
             if header_handle is not None and response.headers is None:
                 __read_header(header_handle, response, service_name)
+
+        if handle is not None:
+            handle.close()
+        if header_handle is not None:
+            header_handle.close()
+
         return response
 
 
