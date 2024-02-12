@@ -20,7 +20,7 @@ class TestTimingLog(TestCase):
         with self.assertRaises(AssertionError):
             with self.assertLogs('restclients_core.dao', level='INFO') as cm:
                 response = TDAO().getURL('/ok')
-                self.assertEquals(len(cm.output), 0)
+                self.assertEqual(len(cm.output), 0)
 
     @skipUnless(hasattr(TestCase, 'assertLogs'), 'Python < 3.4')
     @override_settings(RESTCLIENTS_TIMING_START=(datetime.datetime.now() -
@@ -32,7 +32,7 @@ class TestTimingLog(TestCase):
     def test_log_date_range(self):
         with self.assertLogs('restclients_core.dao', level='INFO') as cm:
             response = TDAO().getURL('/ok')
-            self.assertEquals(len(cm.output), 1)
+            self.assertEqual(len(cm.output), 1)
 
     @skipUnless(hasattr(TestCase, 'assertLogs'), 'Python < 3.4')
     @override_settings(RESTCLIENTS_TIMING_LOG_ENABLED=False,
@@ -41,4 +41,4 @@ class TestTimingLog(TestCase):
     def test_per_service_config(self):
         with self.assertLogs('restclients_core.dao', level='INFO') as cm:
             response = TDAO().getURL('/ok')
-            self.assertEquals(len(cm.output), 1)
+            self.assertEqual(len(cm.output), 1)

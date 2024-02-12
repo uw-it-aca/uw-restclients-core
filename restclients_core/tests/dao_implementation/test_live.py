@@ -84,26 +84,27 @@ class SSLBadIgnoreTDAO(DAO):
 class TestLive(TestCase):
     def test_found_resource(self):
         response = TDAO().getURL('/ok', {})
-        self.assertEquals(response.status, 200)
-        self.assertEquals(response.data, b'ok')
-        self.assertEquals(response.headers["X-Custom-Header"], "header-test")
-        self.assertEquals(response.getheader("X-Custom-Header"), "header-test")
+        self.assertEqual(response.status, 200)
+        self.assertEqual(response.data, b'ok')
+        self.assertEqual(response.headers["X-Custom-Header"], "header-test")
+        self.assertEqual(response.headers.get("X-Custom-Header"),
+                         "header-test")
 
     def test_clear_cached_response(self):
         self.assertIsNone(TDAO().clear_cached_response('/ok'))
 
     def test_missing_resource(self):
         response = TDAO().getURL('/missing.json', {})
-        self.assertEquals(response.status, 404)
+        self.assertEqual(response.status, 404)
 
     def test_other_status(self):
         response = TDAO().getURL('/403', {})
-        self.assertEquals(response.status, 403)
+        self.assertEqual(response.status, 403)
 
     def test_one_redirect(self):
         response = TDAO().getURL('/301', {})
-        self.assertEquals(response.status, 200)
-        self.assertEquals(response.data, b'ok')
+        self.assertEqual(response.status, 200)
+        self.assertEqual(response.data, b'ok')
 
     def test_multiple_redirects(self):
         self.assertRaises(DataFailureException, TDAO().getURL, '/redirect', {})
@@ -158,15 +159,16 @@ class TestLive(TestCase):
 class TestLiveSSL(TestCase):
     def test_ssl_found_resource(self):
         response = SSLTDAO().getURL('/ok', {})
-        self.assertEquals(response.status, 200)
-        self.assertEquals(response.data, b'ok: ')
-        self.assertEquals(response.headers["X-Custom-Header"], "header-test")
-        self.assertEquals(response.getheader("X-Custom-Header"), "header-test")
+        self.assertEqual(response.status, 200)
+        self.assertEqual(response.data, b'ok: ')
+        self.assertEqual(response.headers["X-Custom-Header"], "header-test")
+        self.assertEqual(response.headers.get("X-Custom-Header"),
+                         "header-test")
 
     def test_ssl_client_cert(self):
         response = SSLClientCertTDAO().getURL('/ok', {})
-        self.assertEquals(response.status, 200)
-        self.assertEquals(response.data, b'ok: my.app')
+        self.assertEqual(response.status, 200)
+        self.assertEqual(response.data, b'ok: my.app')
 
     def test_ssl_non_validated_cert(self):
         self.assertRaises(DataFailureException, SSLBadFailTDAO().getURL, '/')
@@ -179,5 +181,5 @@ class TestLiveSSL(TestCase):
 
     def test_ssl_non_valid_ignore(self):
         response = SSLBadIgnoreTDAO().getURL('/ok', {})
-        self.assertEquals(response.status, 200)
-        self.assertEquals(response.data, b'ok')
+        self.assertEqual(response.status, 200)
+        self.assertEqual(response.data, b'ok')

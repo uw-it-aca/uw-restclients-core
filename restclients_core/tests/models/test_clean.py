@@ -14,6 +14,6 @@ class TestModelCleanMethods(TestCase):
         now = datetime.now()
         m1 = ModelTest(d1=now)
 
-        self.assertEquals(now, m1.d1)
+        self.assertEqual(now, m1.d1)
         m1.clean_fields()
-        self.assertEquals(now.date(), m1.d1)
+        self.assertEqual(now.date(), m1.d1)

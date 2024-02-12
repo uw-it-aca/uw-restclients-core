@@ -32,24 +32,31 @@ def load_resource_from_path(resource_dir,
         if handle is not None:
             response.status = 200
             response.data = handle.read()
+            handle.close()
 
         header_handle = open_file(orig_file_path + ".http-headers")
         if header_handle is not None:
             __read_header(header_handle, response, service_name)
+            header_handle.close()
 
         # Check query permutations even on success
         # so that if there are multiple files we throw an exception
         if "?" in url:
             handle = attempt_open_query_permutations(
                 url, orig_file_path, False)
-            if handle is not None and response.status == 404:
-                response.status = 200
-                response.data = handle.read()
+            if handle is not None:
+                if response.status == 404:
+                    response.status = 200
+                    response.data = handle.read()
+                handle.close()
 
             header_handle = attempt_open_query_permutations(
                 url, orig_file_path, True)
-            if header_handle is not None and response.headers is None:
-                __read_header(header_handle, response, service_name)
+            if header_handle is not None:
+                if response.headers is None:
+                    __read_header(header_handle, response, service_name)
+                header_handle.close()
+
         return response
 
 

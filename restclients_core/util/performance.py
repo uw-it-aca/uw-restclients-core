@@ -1,7 +1,7 @@
 # Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from threading import currentThread
+from threading import current_thread
 from restclients_core.models import MockHTTP
 import time
 
@@ -12,17 +12,17 @@ class PerformanceDegradation(object):
 
     @classmethod
     def set_problems(obj, problems):
-        thread = currentThread()
+        thread = current_thread()
         PerformanceDegradation._problem_data[thread] = problems
 
     @classmethod
     def clear_problems(obj):
-        thread = currentThread()
+        thread = current_thread()
         PerformanceDegradation._problem_data[thread] = None
 
     @classmethod
     def get_problems(obj):
-        thread = currentThread()
+        thread = current_thread()
 
         if thread in PerformanceDegradation._problem_data:
             return PerformanceDegradation._problem_data[thread]

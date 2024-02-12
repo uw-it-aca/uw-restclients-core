@@ -54,23 +54,23 @@ class TestBackend(TestCase):
 
     def test_get(self):
         response = TDAO().getURL('/ok')
-        self.assertEquals(response.data, 'ok - GET')
+        self.assertEqual(response.data, 'ok - GET')
 
     def test_post(self):
         response = TDAO().postURL('/ok')
-        self.assertEquals(response.data, 'ok - POST')
+        self.assertEqual(response.data, 'ok - POST')
 
     def test_put(self):
         response = TDAO().putURL('/ok', {}, '')
-        self.assertEquals(response.data, 'ok - PUT')
+        self.assertEqual(response.data, 'ok - PUT')
 
     def test_delete(self):
         response = TDAO().deleteURL('/ok')
-        self.assertEquals(response.data, 'ok - DELETE')
+        self.assertEqual(response.data, 'ok - DELETE')
 
     def test_patch(self):
         response = TDAO().patchURL('/ok', {}, '')
-        self.assertEquals(response.data, 'ok - PATCH')
+        self.assertEqual(response.data, 'ok - PATCH')
 
     def test_error_level1(self):
         self.assertRaises(ImproperlyConfigured, E1DAO().getURL, '/ok')
@@ -83,11 +83,11 @@ class TestBackend(TestCase):
                        RESTCLIENTS_BAR=True)
     def test_service_settings(self):
         dao = TDAO()
-        self.assertEquals(dao.get_setting('FOO'), False)
-        self.assertEquals(dao.get_setting('BAR'), True)
+        self.assertEqual(dao.get_setting('FOO'), False)
+        self.assertEqual(dao.get_setting('BAR'), True)
 
-        self.assertEquals(dao.get_service_setting('FOO'), True)
-        self.assertEquals(dao.get_service_setting('BAR'), True)
+        self.assertEqual(dao.get_service_setting('FOO'), True)
+        self.assertEqual(dao.get_service_setting('BAR'), True)
 
     @skipUnless(hasattr(TestCase, 'assertLogs'), 'Python < 3.4')
     @override_settings(RESTCLIENTS_TIMING_LOG_ENABLED=True,
@@ -95,22 +95,22 @@ class TestBackend(TestCase):
     def test_log(self):
         with self.assertLogs('restclients_core.dao', level='INFO') as cm:
             response = TDAO().getURL('/ok')
-            self.assertEquals(len(cm.output), 1)
+            self.assertEqual(len(cm.output), 1)
             (msg, time) = cm.output[0].split(' time:')
-            self.assertEquals(msg,
-                              'INFO:restclients_core.dao:service:backend_test '
-                              'method:GET url:/ok status:200 from_cache:no'
-                              ' cache_class:None')
+            self.assertEqual(msg,
+                             'INFO:restclients_core.dao:service:backend_test '
+                             'method:GET url:/ok status:200 from_cache:no'
+                             ' cache_class:None')
             self.assertGreater(float(time), 0)
 
         with self.assertLogs('restclients_core.dao', level='INFO') as cm:
             response = TDAO().putURL('/api', {}, '')
-            self.assertEquals(len(cm.output), 1)
+            self.assertEqual(len(cm.output), 1)
             (msg, time) = cm.output[0].split(' time:')
-            self.assertEquals(msg,
-                              'INFO:restclients_core.dao:service:backend_test '
-                              'method:PUT url:/api status:200 from_cache:no'
-                              ' cache_class:None')
+            self.assertEqual(msg,
+                             'INFO:restclients_core.dao:service:backend_test '
+                             'method:PUT url:/api status:200 from_cache:no'
+                             ' cache_class:None')
             self.assertGreater(float(time), 0)
 
     @skipUnless(hasattr(TestCase, 'assertLogs'), 'Python < 3.4')
@@ -123,23 +123,23 @@ class TestBackend(TestCase):
         # Cached response
         with self.assertLogs('restclients_core.dao', level='INFO') as cm:
             response = TDAO().getURL('/ok')
-            self.assertEquals(len(cm.output), 1)
+            self.assertEqual(len(cm.output), 1)
             (msg, time) = cm.output[0].split(' time:')
-            self.assertEquals(msg,
-                              'INFO:restclients_core.dao:service:backend_test '
-                              'method:GET url:/ok status:200 from_cache:yes'
-                              ' cache_class:TCache')
+            self.assertEqual(msg,
+                             'INFO:restclients_core.dao:service:backend_test '
+                             'method:GET url:/ok status:200 from_cache:yes'
+                             ' cache_class:TCache')
             self.assertGreater(float(time), 0)
 
         # Cached post response
         with self.assertLogs('restclients_core.dao', level='INFO') as cm:
             response = TDAO().getURL('/ok2')
-            self.assertEquals(len(cm.output), 1)
+            self.assertEqual(len(cm.output), 1)
             (msg, time) = cm.output[0].split(' time:')
-            self.assertEquals(msg,
-                              'INFO:restclients_core.dao:service:backend_test '
-                              'method:GET url:/ok2 status:404 from_cache:yes'
-                              ' cache_class:TCache')
+            self.assertEqual(msg,
+                             'INFO:restclients_core.dao:service:backend_test '
+                             'method:GET url:/ok2 status:404 from_cache:yes'
+                             ' cache_class:TCache')
             self.assertGreater(float(time), 0)
 
     @override_settings(RESTCLIENTS_DAO_CACHE_CLASS=(

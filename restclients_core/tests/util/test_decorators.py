@@ -19,12 +19,12 @@ class TDAO2(DAO):
 
 class TestMockOverride(TestCase):
     def test_multi_service(self):
-        self.assertEquals(getattr(settings, "RESTCLIENTS_TD1_DAO_CLASS", None),
-                          None)
+        self.assertEqual(getattr(settings, "RESTCLIENTS_TD1_DAO_CLASS", None),
+                         None)
 
         with use_mock(TDAO1(), TDAO2()):
-            self.assertEquals(settings.RESTCLIENTS_TD1_DAO_CLASS, 'Mock')
-            self.assertEquals(settings.RESTCLIENTS_TD2_DAO_CLASS, 'Mock')
+            self.assertEqual(settings.RESTCLIENTS_TD1_DAO_CLASS, 'Mock')
+            self.assertEqual(settings.RESTCLIENTS_TD2_DAO_CLASS, 'Mock')
 
-        self.assertEquals(getattr(settings, "RESTCLIENTS_TD1_DAO_CLASS", None),
-                          None)
+        self.assertEqual(getattr(settings, "RESTCLIENTS_TD1_DAO_CLASS", None),
+                         None)
