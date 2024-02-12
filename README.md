@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/uw-it-aca/uw-restclients-core/workflows/tests/badge.svg?branch=main)](https://github.com/uw-it-aca/uw-restclients-core/actions)
 [![Coverage Status](https://coveralls.io/repos/uw-it-aca/uw-restclients-core/badge.svg?branch=main)](https://coveralls.io/r/uw-it-aca/uw-restclients-core?branch=main)
 [![PyPi Version](https://img.shields.io/pypi/v/uw-restclients-core.svg)](https://pypi.python.org/pypi/uw-restclients-core)
-![Python versions](https://img.shields.io/pypi/pyversions/uw-restclients-core.svg)
+![Python versions](https://img.shields.io/badge/python-3.10-blue.svg)
 
 
 This module provides useful interfaces for webservice clients.
