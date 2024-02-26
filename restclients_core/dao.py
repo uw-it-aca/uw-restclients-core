@@ -402,6 +402,7 @@ class LiveDAO(DAOImplementation):
         host = self.dao.get_service_setting("HOST")
         key_file = self.dao.get_service_setting("KEY_FILE", None)
         verify_https = self.dao.get_service_setting("VERIFY_HTTPS")
+        ssl_context = self.dao.get_service_setting("SSL_CONTEXT")
 
         if verify_https is None:
             verify_https = True
@@ -422,17 +423,15 @@ class LiveDAO(DAOImplementation):
         if urlparse(host).scheme == "https":
             kwargs["ssl_version"] = self.dao.get_service_setting(
                 "SSL_VERSION", ssl.PROTOCOL_TLS)
+
             if verify_https:
                 kwargs["cert_reqs"] = "CERT_REQUIRED"
                 kwargs["ca_certs"] = ca_certs
             else:
                 kwargs["cert_reqs"] = "CERT_NONE"
 
-        if self.dao.get_service_setting("IS_WEAK_KEY") is True:
-            # Address SSL: DH_KEY_TOO_SMALL error
-            ssl_context = ssl.SSLContext()
-            ssl_context.set_ciphers('HIGH:!DH:!aNULL')
-            kwargs["ssl_context"] = ssl_context
+            if ssl_context is not None:
+                kwargs["ssl_context"] = ssl_context
 
         return connection_from_url(host, **kwargs)
 
