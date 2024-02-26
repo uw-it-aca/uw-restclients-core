@@ -428,6 +428,12 @@ class LiveDAO(DAOImplementation):
             else:
                 kwargs["cert_reqs"] = "CERT_NONE"
 
+        if self.dao.get_service_setting("IS_WEAK_KEY") is True:
+            # Address SSL: DH_KEY_TOO_SMALL error
+            ssl_context = ssl.SSLContext()
+            ssl_context.set_ciphers('HIGH:!DH:!aNULL')
+            kwargs["ssl_context"] = ssl_context
+
         return connection_from_url(host, **kwargs)
 
     def _get_connect_timeout(self):
