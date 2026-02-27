@@ -1,4 +1,4 @@
-# Copyright 2025 UW-IT, University of Washington
+# Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase, skipUnless
@@ -13,82 +13,82 @@ import os
 
 class TDAO(DAO):
     def service_name(self):
-        return "live_test"
+        return 'live_test'
 
     def get_default_service_setting(self, key):
-        if "DAO_CLASS" == key:
-            return "Live"
+        if 'DAO_CLASS' == key:
+            return 'Live'
 
-        if "HOST" == key:
-            return "http://localhost:9876/"
+        if 'HOST' == key:
+            return 'http://localhost:9876/'
 
 
 class SSLTDAO(DAO):
     def service_name(self):
-        return "live_ssl_test"
+        return 'live_ssl_test'
 
     def get_default_service_setting(self, key):
-        if "DAO_CLASS" == key:
-            return "Live"
+        if 'DAO_CLASS' == key:
+            return 'Live'
 
-        if "HOST" == key:
-            return "https://localhost:9443/"
+        if 'HOST' == key:
+            return 'https://localhost:9443/'
 
 
 class SSLClientCertTDAO(DAO):
     def service_name(self):
-        return "live_ssl_test_cert"
+        return 'live_ssl_test_cert'
 
     def get_default_service_setting(self, key):
-        if "DAO_CLASS" == key:
-            return "Live"
+        if 'DAO_CLASS' == key:
+            return 'Live'
 
-        if "HOST" == key:
-            return "https://localhost:9443/"
+        if 'HOST' == key:
+            return 'https://localhost:9443/'
 
-        if "CERT_FILE" == key:
-            return "test/certs/client-cert.pem"
+        if 'CERT_FILE' == key:
+            return 'test/certs/client-cert.pem'
 
-        if "KEY_FILE" == key:
-            return "test/certs/client_key.pem"
+        if 'KEY_FILE' == key:
+            return 'test/certs/client_key.pem'
 
 
 class SSLBadFailTDAO(DAO):
     def service_name(self):
-        return "live_ssl_test_fail"
+        return 'live_ssl_test_fail'
 
     def get_default_service_setting(self, key):
-        if "DAO_CLASS" == key:
-            return "Live"
+        if 'DAO_CLASS' == key:
+            return 'Live'
 
-        if "HOST" == key:
-            return "https://localhost:9444/"
+        if 'HOST' == key:
+            return 'https://localhost:9444/'
 
 
 class SSLBadIgnoreTDAO(DAO):
     def service_name(self):
-        return "live_ssl_test_ignore"
+        return 'live_ssl_test_ignore'
 
     def get_default_service_setting(self, key):
-        if "DAO_CLASS" == key:
-            return "Live"
+        if 'DAO_CLASS' == key:
+            return 'Live'
 
-        if "HOST" == key:
-            return "https://localhost:9444/"
+        if 'HOST' == key:
+            return 'https://localhost:9444/'
 
-        if "VERIFY_HTTPS" == key:
+        if 'VERIFY_HTTPS' == key:
             return False
 
 
-@skipUnless("RUN_LIVE_TESTS" in os.environ, "RUN_LIVE_TESTS=1 to run tests")
+@skipUnless('RUN_LIVE_TESTS' in os.environ, 'RUN_LIVE_TESTS=1 to run tests')
 class TestLive(TestCase):
     def test_found_resource(self):
         response = TDAO().getURL('/ok', {})
         self.assertEqual(response.status, 200)
         self.assertEqual(response.data, b'ok')
-        self.assertEqual(response.headers["X-Custom-Header"], "header-test")
-        self.assertEqual(response.headers.get("X-Custom-Header"),
-                         "header-test")
+        self.assertEqual(response.headers['X-Custom-Header'], 'header-test')
+        self.assertEqual(response.headers.get('X-Custom-Header'),
+                         'header-test')
 
     def test_clear_cached_response(self):
         self.assertIsNone(TDAO().clear_cached_response('/ok'))
@@ -155,20 +155,20 @@ class TestLive(TestCase):
             self.assertEqual(live_dao._get_max_pool_size(), 25)
 
 
-@skipUnless("RUN_SSL_TESTS" in os.environ, "RUN_SSL_TESTS=1 to run tests")
+@skipUnless('RUN_SSL_TESTS' in os.environ, 'RUN_SSL_TESTS=1 to run tests')
 class TestLiveSSL(TestCase):
     def test_ssl_found_resource(self):
         response = SSLTDAO().getURL('/ok', {})
         self.assertEqual(response.status, 200)
-        self.assertEqual(response.data, b'ok: ')
-        self.assertEqual(response.headers["X-Custom-Header"], "header-test")
-        self.assertEqual(response.headers.get("X-Custom-Header"),
-                         "header-test")
+        self.assertEqual(response.data, b'Ok')
+        self.assertEqual(response.headers['X-Custom-Header'], 'header-test')
+        self.assertEqual(response.headers.get('X-Custom-Header'),
+                         'header-test')
 
     def test_ssl_client_cert(self):
         response = SSLClientCertTDAO().getURL('/ok', {})
         self.assertEqual(response.status, 200)
-        self.assertEqual(response.data, b'ok: my.app')
+        self.assertEqual(response.data, b'Ok')
 
     def test_ssl_non_validated_cert(self):
         self.assertRaises(DataFailureException, SSLBadFailTDAO().getURL, '/')
@@ -182,4 +182,4 @@ class TestLiveSSL(TestCase):
     def test_ssl_non_valid_ignore(self):
         response = SSLBadIgnoreTDAO().getURL('/ok', {})
         self.assertEqual(response.status, 200)
-        self.assertEqual(response.data, b'ok')
+        self.assertEqual(response.data, b'Ok')

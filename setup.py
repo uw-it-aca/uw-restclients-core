@@ -21,7 +21,7 @@ setup(
     name='UW-RestClients-Core',
     version=VERSION,
     packages=['restclients_core'],
-    author="UW-IT SETS",
+    author="UWIT Student & Educational Technology Services",
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=['commonconf',
