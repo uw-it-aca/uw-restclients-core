@@ -160,7 +160,7 @@ class TestLiveSSL(TestCase):
     def test_ssl_found_resource(self):
         response = SSLTDAO().getURL('/ok', {})
         self.assertEqual(response.status, 200)
-        self.assertEqual(response.data, b'ok: ')
+        self.assertEqual(response.data, b'Ok')
         self.assertEqual(response.headers['X-Custom-Header'], 'header-test')
         self.assertEqual(response.headers.get('X-Custom-Header'),
                          'header-test')
