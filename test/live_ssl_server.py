@@ -7,6 +7,8 @@ except ImportError:
     from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 import os
 import ssl
+import socketserver
+
 PORT_NUMBER = 9443
 
 
@@ -40,13 +42,10 @@ cert_path = os.path.join(os.path.dirname(__file__), 'certs/server-cert.pem')
 key_path = os.path.join(os.path.dirname(__file__), 'certs/server_key.pem')
 ca_path = os.path.join(os.path.dirname(__file__), 'certs/cacert.pem')
 
+context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+context.load_verify_locations(cafile=ca_path)
+context.load_cert_chain(certfile=cert_path, keyfile=key_path)
 
-server = HTTPServer(('localhost', PORT_NUMBER), myHandler)
-server.socket = ssl.wrap_socket(server.socket,
-                                keyfile=key_path,
-                                certfile=cert_path,
-                                ca_certs=ca_path,
-                                server_side=True,
-                                cert_reqs = ssl.CERT_OPTIONAL,
-                                )
-server.serve_forever()
+with socketserver.TCPServer(('localhost', PORT_NUMBER), myHandler) as httpd:
+    httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
+    httpd.serve_forever()
