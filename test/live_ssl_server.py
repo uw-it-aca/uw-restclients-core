@@ -4,7 +4,7 @@
 try:
     from http.server import BaseHTTPRequestHandler, HTTPServer
 except ImportError:
-    from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import os
 import ssl
 import socketserver
@@ -14,27 +14,23 @@ PORT_NUMBER = 9443
 
 class myHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == "/ok":
-            cert = self.request.getpeercert()
-            subject = b""
-            if cert:
-                subject = cert["subjectAltName"][0][1].encode("ascii")
+        if self.path == '/ok':
             self.send_response(200)
-            self.send_header('Content-type','text/html')
-            self.send_header('X-Custom-Header','header-test')
+            self.send_header('Content-type', 'text/html')
+            self.send_header('X-Custom-Header', 'header-test')
             self.end_headers()
-            self.wfile.write(b"ok: " + subject)
+            self.wfile.write(b'Ok')
             return
-        elif self.path == "/403":
+        elif self.path == '/403':
             self.send_response(403)
             self.end_headers()
-            self.wfile.write(b"Forbidden")
+            self.wfile.write(b'Forbidden')
             return
 
         self.send_response(404)
-        self.send_header('Content-type','text/html')
+        self.send_header('Content-type', 'text/html')
         self.end_headers()
-        self.wfile.write(b"Not Found")
+        self.wfile.write(b'Not Found')
         return
 
 
