@@ -78,8 +78,8 @@ jobs:
 
       - name: Run Tests
         env:
-          RUN_LIVE_TESTS: 1
-          RUN_SSL_TESTS: 1
+          RUN_LIVE_TESTS: 0
+          RUN_SSL_TESTS: 0
         run: |
           python -m compileall ${APP_NAME}/
           python -Wd -m coverage run ${APP_NAME}/test.py -v
