@@ -1,17 +1,22 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from unittest import TestCase
 from threading import current_thread
+from unittest import TestCase
+
 from restclients_core.util.local_cache import (
-    local_cache, set_cache_value, get_cache_value, LOCAL_CACHE)
+    LOCAL_CACHE,
+    get_cache_value,
+    local_cache,
+    set_cache_value,
+)
 
 
 class TestCache(TestCase):
     def test_context(self):
         thread = current_thread()
-        with local_cache() as lc:
-            v1 = test_method1("init")
+        with local_cache():
+            test_method1("init")
 
             self.assertTrue(thread in LOCAL_CACHE)
             v2 = test_method1("nope, old cached value")
@@ -24,7 +29,7 @@ class TestCache(TestCase):
 
         @local_cache()
         def use_the_cache():
-            v1 = test_method1("init decorator")
+            test_method1("init decorator")
 
             self.assertTrue(thread in LOCAL_CACHE)
             v2 = test_method1("nope, old cached value")

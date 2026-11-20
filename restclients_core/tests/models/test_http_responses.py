@@ -1,8 +1,9 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from restclients_core.models import CacheHTTP
 from unittest import TestCase
+
+from restclients_core.models import CacheHTTP
 
 
 class TestCacheHTTP(TestCase):

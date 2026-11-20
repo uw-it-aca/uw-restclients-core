@@ -1,12 +1,13 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from threading import current_thread
-from restclients_core.models import MockHTTP
 import time
+from threading import current_thread
+
+from restclients_core.models import MockHTTP
 
 
-class PerformanceDegradation(object):
+class PerformanceDegradation:
     _problem_data = {}
     problems = None
 

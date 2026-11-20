@@ -1,4 +1,4 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from threading import current_thread
@@ -6,7 +6,7 @@ from threading import current_thread
 LOCAL_CACHE = {}
 
 
-class local_cache(object):
+class local_cache:
     """
     A decorator or context manager that will cache some values for the
     lifetime of the decorator/context manager.

@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "UW-RestClients-Core"
+dynamic = ["version"]
+description = "Core code for clients of a variety of RESTful web services at the University of Washington"
+readme = "README.md"
+license = {text = "Apache License, Version 2.0"}
+authors = [
+    {name = "UWIT Student & Educational Technology Services", email = "aca-it@uw.edu"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    "commonconf",
+    "urllib3",
+    "python-dateutil",
+    "prometheus-client",
+    "mock",
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+]
+
+[project.urls]
+Homepage = "https://github.com/uw-it-aca/uw-restclients-core"
+
+[tool.setuptools]
+packages = ["restclients_core"]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {file = "restclients_core/VERSION"}
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.format]
+indent-style = "space"
+
+[tool.ruff.lint]
+ignore = [
+    "BLE001",
+    "RUF012",
+    "S110",
+    "TRY002",
+    "TRY004",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["restclients_core"]
+include = ["restclients_core/*"]
