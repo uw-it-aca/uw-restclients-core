@@ -1,10 +1,9 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 
 class ImproperlyConfigured(Exception):
     """Required setting is missing"""
-    pass
 
 
 class DataFailureException(Exception):
@@ -21,20 +20,16 @@ class DataFailureException(Exception):
 
     def __str__(self):
         return (
-            "Error fetching {}.  Status code: {}.  Message: {}.".format(
-                self.url, self.status, self.msg))
+            f"Error fetching {self.url}.  Status code: {self.status}.  Message: {self.msg}.")
 
 
 class InvalidRegID(Exception):
     """Exception for invalid regid."""
-    pass
 
 
 class InvalidNetID(Exception):
     """Exception for invalid netid."""
-    pass
 
 
 class InvalidEmployeeID(Exception):
     """Exception for invalid employee id."""
-    pass

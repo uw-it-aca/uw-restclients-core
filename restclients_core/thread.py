@@ -1,8 +1,9 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from commonconf import settings
 import threading
+
+from commonconf import settings
 
 try:
     from django.db import connection as db_connection
@@ -77,7 +78,7 @@ class GenericPrefetchThread(Thread):
         if self.method is not None:
             try:
                 self.method()
-            except Exception as ex:
+            except Exception:
                 # Errors in prefetching should also manifest during actual
                 # processing, where they can be handled appropriately
                 pass

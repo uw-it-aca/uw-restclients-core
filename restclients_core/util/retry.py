@@ -1,12 +1,13 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from restclients_core.exceptions import DataFailureException
 import math
 import time
 
+from restclients_core.exceptions import DataFailureException
 
-def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, status_codes=[],
+
+def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, status_codes=None,
           logger=None):
     """
     Decorator function for retrying the decorated function,
@@ -33,6 +34,9 @@ def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, status_codes=[],
     if delay is None or delay <= 0:
         raise ValueError("delay must be a number greater than 0")
 
+    if status_codes is None:
+        status_codes = []
+
     def deco_retry(f):
         def f_retry(*args, **kwargs):
             mtries, mdelay = tries, delay
@@ -48,8 +52,7 @@ def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, status_codes=[],
 
                     if logger:
                         logger.warning(
-                            "{}: {}, Retrying in {} seconds.".format(
-                                f.__name__, err, mdelay))
+                            f"{f.__name__}: {err}, Retrying in {mdelay} seconds.")
 
                     time.sleep(mdelay)
                     mtries -= 1

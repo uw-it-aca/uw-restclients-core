@@ -1,14 +1,15 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from unittest import TestCase, skipUnless
+import os
+from unittest import TestCase, mock, skipUnless
+
 from commonconf import override_settings
+from urllib3.connectionpool import HTTPConnectionPool
+from urllib3.exceptions import MaxRetryError
+
 from restclients_core.dao import DAO
 from restclients_core.exceptions import DataFailureException
-from urllib3.connectionpool import HTTPConnectionPool
-from urllib3.exceptions import MaxRetryError, SSLError
-import mock
-import os
 
 
 class TDAO(DAO):
@@ -153,6 +154,23 @@ class TestLive(TestCase):
 
         with override_settings(RESTCLIENTS_DEFAULT_POOL_SIZE=25):
             self.assertEqual(live_dao._get_max_pool_size(), 25)
+
+        # Default retry object
+        retry = live_dao._get_retry()
+        self.assertEqual(retry.total, 1)
+        self.assertEqual(retry.connect, 0)
+        self.assertEqual(retry.read, 0)
+        self.assertEqual(retry.redirect, 1)
+
+        with override_settings(RESTCLIENTS_LIVE_TEST_RETRY_TOTAL=3,
+                               RESTCLIENTS_LIVE_TEST_RETRY_CONNECT=4,
+                               RESTCLIENTS_LIVE_TEST_RETRY_READ=2,
+                               RESTCLIENTS_LIVE_TEST_RETRY_REDIRECT=3):
+            retry = live_dao._get_retry()
+            self.assertEqual(retry.total, 3)
+            self.assertEqual(retry.connect, 4)
+            self.assertEqual(retry.read, 2)
+            self.assertEqual(retry.redirect, 3)
 
 
 @skipUnless('RUN_SSL_TESTS' in os.environ, 'RUN_SSL_TESTS=1 to run tests')
