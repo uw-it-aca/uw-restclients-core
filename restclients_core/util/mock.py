@@ -1,11 +1,12 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-import re
-import os
-from os.path import isfile, join, dirname
 import json
+import os
+import re
+from os.path import dirname, isfile, join
 from urllib.parse import unquote
+
 from restclients_core.exceptions import DataFailureException
 from restclients_core.models import MockHTTP
 
@@ -79,7 +80,7 @@ def __read_header(header_handle, response, service_name):
             response.headers.update(file_values)
     except UnicodeDecodeError:
         pass
-    except IOError:
+    except OSError:
         pass
 
 
@@ -98,27 +99,24 @@ def open_file(orig_file_path):
     unquoted = unquote(orig_file_path)
     paths = [
         convert_to_platform_safe(orig_file_path),
-        "{}/index.html".format(convert_to_platform_safe(orig_file_path)),
+        f"{convert_to_platform_safe(orig_file_path)}/index.html",
         orig_file_path,
-        "{}/index.html".format(orig_file_path),
+        f"{orig_file_path}/index.html",
         convert_to_platform_safe(unquoted),
-        "{}/index.html".format(convert_to_platform_safe(unquoted)),
+        f"{convert_to_platform_safe(unquoted)}/index.html",
         unquoted,
-        "{}/index.html".format(unquoted),
+        f"{unquoted}/index.html",
         ]
 
-    file_path = None
     handle = None
     for path in paths:
         try:
-            file_path = path
-            handle = open(path, "rb")
+            handle = open(path, "rb")  # noqa: SIM115
             break
-        except IOError:
+        except OSError:
             pass
 
     return handle
-
 
 def attempt_open_query_permutations(url, orig_file_path, is_header_file):
     """

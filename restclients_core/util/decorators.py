@@ -1,4 +1,4 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from commonconf import override_settings
@@ -8,9 +8,7 @@ def use_mock(*args):
     kw_args = {}
 
     for service in args:
-        key = "RESTCLIENTS_{}_DAO_CLASS".format(
-            service.service_name().upper())
-
+        key = f"RESTCLIENTS_{service.service_name().upper()}_DAO_CLASS"
         kw_args[key] = 'Mock'
 
     return override_settings(**kw_args)

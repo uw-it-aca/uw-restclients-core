@@ -1,11 +1,11 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import time
 
 
-class BaseField(object):
+class BaseField:
     default = None
 
     def __init__(self, *args, **kwargs):
@@ -15,10 +15,10 @@ class BaseField(object):
         if "default" in kwargs:
             self.default = kwargs["default"]
 
-        super(BaseField, self).__init__()
+        super().__init__()
 
     def __get__(self, instance, owner):
-        key = self._key_for_instance(instance)
+        self._key_for_instance(instance)
 
         field_key = self._key_for_instance(self)
 
@@ -54,17 +54,17 @@ class CharField(BaseField):
 
     def __init__(self, *args, **kwargs):
         nullable = False
-        if "null" in kwargs and kwargs["null"]:
+        if kwargs.get("null"):
             nullable = True
 
         if not nullable:
-            self.default = u""
+            self.default = ""
 
         if "choices" in kwargs:
             self.has_choices = True
             self.choices = kwargs["choices"]
 
-        super(CharField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_display(self, instance):
         val = self.__get__(instance, None)

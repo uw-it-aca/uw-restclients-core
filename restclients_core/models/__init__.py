@@ -1,20 +1,31 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 import re
 import weakref
-from restclients_core.models.fields import (BooleanField, CharField, DateField,
-                                            DateTimeField, DecimalField,
-                                            FloatField, ForeignKey,
-                                            IntegerField, NullBooleanField,
-                                            PositiveIntegerField,
-                                            PositiveSmallIntegerField,
-                                            SlugField, SmallIntegerField,
-                                            TextField, TimeField, URLField,
-                                            BaseField)
+
+from restclients_core.models.fields import (  # noqa: F401
+    BaseField,
+    BooleanField,
+    CharField,
+    DateField,
+    DateTimeField,
+    DecimalField,
+    FloatField,
+    ForeignKey,
+    IntegerField,
+    NullBooleanField,
+    PositiveIntegerField,
+    PositiveSmallIntegerField,
+    SlugField,
+    SmallIntegerField,
+    TextField,
+    TimeField,
+    URLField,
+)
 
 
-class MockHTTP(object):
+class MockHTTP:
     """
     An alternate object to HTTPResponse, for non-HTTP DAO
     implementations to use.  Implements the API of HTTPResponse
@@ -54,16 +65,16 @@ class CacheHTTP(MockHTTP):
         return self.cache_class
 
 
-class Model(object):
+class Model:
     initialized = False
 
     def __init__(self, *args, **kwargs):
         self._init()
 
-        super(Model, self).__init__()
+        super().__init__()
 
-        for key in kwargs:
-            setattr(self, key, kwargs[key])
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     def _init(self):
         # Some models overrode __init__ without calling super.  This keeps
@@ -95,7 +106,7 @@ class Model(object):
         # Class's dictionary, we try to let that field type get the right
         # value.  then we return a function that returns the value.
         try:
-            base_value = super(Model, self).__getattribute__(name)
+            base_value = super().__getattribute__(name)
             return base_value
         except AttributeError as ex:
             base_value = None
@@ -120,11 +131,9 @@ class Model(object):
             if field:
                 field.clean(self)
 
-        pass
-
     def __str__(self):
         return ", ".join([
-            "{}: {}".format(k, getattr(self, k))
+            f"{k}: {getattr(self, k)}"
             for k, v in sorted(self.__class__.__dict__.items())
             if issubclass(type(v), BaseField)])
 

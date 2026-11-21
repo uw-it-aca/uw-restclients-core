@@ -1,12 +1,13 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase, skipUnless
+
 from commonconf import override_settings
+
 from restclients_core.dao import DAO, MockDAO
-from restclients_core.cache import NoCache
-from restclients_core.models import MockHTTP, CacheHTTP
 from restclients_core.exceptions import ImproperlyConfigured
+from restclients_core.models import CacheHTTP, MockHTTP
 
 
 class TDAO(DAO):
@@ -33,7 +34,7 @@ class E2DAO(TDAO):
                     'test_backend.BackendX')
 
 
-class TCache():
+class TCache:
     def getCache(self, service, url, headers):
         if url == '/ok':
             response = CacheHTTP()
@@ -94,7 +95,7 @@ class TestBackend(TestCase):
                        RESTCLIENTS_TIMING_LOG_RATE=1.0)
     def test_log(self):
         with self.assertLogs('restclients_core.dao', level='INFO') as cm:
-            response = TDAO().getURL('/ok')
+            TDAO().getURL('/ok')
             self.assertEqual(len(cm.output), 1)
             (msg, time) = cm.output[0].split(' time:')
             self.assertEqual(msg,
@@ -104,7 +105,7 @@ class TestBackend(TestCase):
             self.assertGreater(float(time), 0)
 
         with self.assertLogs('restclients_core.dao', level='INFO') as cm:
-            response = TDAO().putURL('/api', {}, '')
+            TDAO().putURL('/api', {}, '')
             self.assertEqual(len(cm.output), 1)
             (msg, time) = cm.output[0].split(' time:')
             self.assertEqual(msg,
@@ -122,7 +123,7 @@ class TestBackend(TestCase):
     def test_log_cache(self):
         # Cached response
         with self.assertLogs('restclients_core.dao', level='INFO') as cm:
-            response = TDAO().getURL('/ok')
+            TDAO().getURL('/ok')
             self.assertEqual(len(cm.output), 1)
             (msg, time) = cm.output[0].split(' time:')
             self.assertEqual(msg,
@@ -133,7 +134,7 @@ class TestBackend(TestCase):
 
         # Cached post response
         with self.assertLogs('restclients_core.dao', level='INFO') as cm:
-            response = TDAO().getURL('/ok2')
+            TDAO().getURL('/ok2')
             self.assertEqual(len(cm.output), 1)
             (msg, time) = cm.output[0].split(' time:')
             self.assertEqual(msg,
@@ -161,5 +162,5 @@ class Backend(MockDAO):
     def load(self, method, url, headers, body):
         response = MockHTTP()
         response.status = 200
-        response.data = "ok - {}".format(method)
+        response.data = f"ok - {method}"
         return response
