@@ -1,10 +1,10 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from unittest import TestCase, skipIf
-from restclients_core.dao import DAO
 from os.path import abspath, dirname
-from restclients_core.dao import MockDAO
+from unittest import TestCase, skipIf
+
+from restclients_core.dao import DAO, MockDAO
 from restclients_core.exceptions import DataFailureException
 
 

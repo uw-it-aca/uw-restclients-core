@@ -1,28 +1,28 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-import random
 import datetime
-from restclients_core.util.mock import load_resource_from_path
-from restclients_core.util.local_cache import (
-    set_cache_value, get_cache_value)
-from restclients_core.models import MockHTTP, CacheHTTP
-from restclients_core.exceptions import (
-    ImproperlyConfigured, DataFailureException)
-from restclients_core.cache import NoCache
-from restclients_core.util.performance import PerformanceDegradation
+import random
+import ssl
+import time
 from importlib import import_module
+from logging import getLogger
+from urllib.parse import urlparse
+
 from commonconf import settings
+from dateutil.parser import parse
+from prometheus_client import Counter, Histogram
 from urllib3 import connection_from_url
+from urllib3.exceptions import HTTPError
 from urllib3.util import Timeout
 from urllib3.util.retry import Retry
-from urllib3.exceptions import HTTPError
-from prometheus_client import Histogram, Counter
-from logging import getLogger
-from dateutil.parser import parse
-from urllib.parse import urlparse
-import time
-import ssl
+
+from restclients_core.cache import NoCache
+from restclients_core.exceptions import DataFailureException, ImproperlyConfigured
+from restclients_core.models import MockHTTP
+from restclients_core.util.local_cache import get_cache_value, set_cache_value
+from restclients_core.util.mock import load_resource_from_path
+from restclients_core.util.performance import PerformanceDegradation
 
 logger = getLogger(__name__)
 
@@ -42,7 +42,7 @@ prometheus_ssl_error = Counter('restclient_request_ssl_error',
                                ['service'])
 
 
-class DAO(object):
+class DAO:
     """
     Base class for per-service interfaces.
     """
@@ -79,8 +79,6 @@ class DAO(object):
         This method can be overridden to add headers to a request.  For
         example, a Bearer header can be added if a service uses OAuth tokens.
         """
-        # to handle things like adding a bearer token
-        pass
 
     def _custom_response_edit(self, method, url, headers, body, response):
         """
@@ -102,7 +100,6 @@ class DAO(object):
 
         This method should edit the response object directly.  No return value.
         """
-        pass
 
     def get_default_service_setting(self, key):
         """
@@ -110,15 +107,15 @@ class DAO(object):
         your service almost always uses, you can have this method return that
         value when passed 'HOST'.
         """
-        return None
+        return
 
-    def getURL(self, url, headers={}):
+    def getURL(self, url, headers=None):
         """
         Request a URL using the HTTP method GET
         """
         return self._load_resource("GET", url, headers, None)
 
-    def postURL(self, url, headers={}, body=None):
+    def postURL(self, url, headers=None, body=None):
         """
         Request a URL using the HTTP method POST.
         """
@@ -191,12 +188,12 @@ class DAO(object):
 
         if is_cacheable:
             cache_post_response = cache.processResponse(service, url, response)
-            if cache_post_response is not None:
-                if "response" in cache_post_response:
-                    self._log(service=service, url=url, method=method,
-                              response=response, cached=True,
-                              start_time=start_time)
-                    return cache_post_response["response"]
+            if (cache_post_response is not None and
+                    "response" in cache_post_response):
+                self._log(service=service, url=url, method=method,
+                          response=response, cached=True,
+                          start_time=start_time)
+                return cache_post_response["response"]
 
         self._log(service=service, url=url, method=method, response=response,
                   cached=False, start_time=start_time)
@@ -248,10 +245,8 @@ class DAO(object):
             return self._get_mock_implementation()
 
         # Legacy settings support
-        live = "restclients.dao_implementation.{}.Live".format(
-            self.service_name())
-        mock = "restclients.dao_implementation.{}.File".format(
-            self.service_name())
+        live = f"restclients.dao_implementation.{self.service_name()}.Live"
+        mock = f"restclients.dao_implementation.{self.service_name()}.File"
 
         if live == implementation:
             return self._get_live_implementation()
@@ -266,9 +261,7 @@ class DAO(object):
         return self._get_mock_implementation()
 
     def _is_cacheable(self, method, url, headers, body=None):
-        if method == "GET":
-            return True
-        return False
+        return method == "GET"
 
     def _ok_status_codes():
         return [200, 201, 202, 204]
@@ -286,32 +279,35 @@ class DAO(object):
         if default is None:
             default = self.get_default_service_setting(key)
 
-        service_key = "{}_{}".format(self.service_name().upper(), key)
+        service_key = f"{self.service_name().upper()}_{key}"
 
-        if hasattr(settings, "RESTCLIENTS_{}".format(service_key)):
+        if hasattr(settings, f"RESTCLIENTS_{service_key}"):
             return self.get_setting(service_key, default)
         else:
             return self.get_setting(key, default)
 
     def get_setting(self, key, default=None):
-        key = "RESTCLIENTS_{}".format(key)
+        key = f"RESTCLIENTS_{key}"
         return getattr(settings, key, default)
 
-    def _getModule(self, value, default_class, args=[]):
+    def _getModule(self, value, default_class, args=None):
         if not value:
             return default_class()
+
+        if args is None:
+            args = []
 
         module, attr = value.rsplit('.', 1)
         try:
             mod = import_module(module)
         except ImportError as e:
             raise ImproperlyConfigured(
-                "Error importing module {}: {}".format(module, e))
+                f"Error importing module {module}: {e}")
         try:
             config_module = getattr(mod, attr)
         except AttributeError:
             raise ImproperlyConfigured(
-                "Module {} missing {} class".format(module, attr))
+                f"Module {module} missing {attr} class")
         return config_module(*args)
 
     def _log(self, *args, **kwargs):
@@ -331,21 +327,17 @@ class DAO(object):
         logger.info(msg)
 
     def should_log(self):
-
-        if self.log_start is not None and self.log_end is not None:
-            if not self.log_start < datetime.datetime.now() < self.log_end:
+        if (self.log_start is not None and self.log_end is not None and
+            not self.log_start < datetime.datetime.now() < self.log_end):
                 return False
 
         if not self.log_timing:
             return False
 
-        if random.random() >= self.logging_rate:
-            return False
-
-        return True
+        return not random.random() >= self.logging_rate
 
 
-class DAOImplementation(object):
+class DAOImplementation:
     def __init__(self, service_name, dao):
         self._service_name = service_name
         self.dao = dao
@@ -376,7 +368,7 @@ class LiveDAO(DAOImplementation):
                 pool_timeout=timeout.connect_timeout)
             # will block for 1 sec if no connection is available
             # then raise EmptyPoolError
-        except ssl.SSLError as err:
+        except ssl.SSLError:
             self._prometheus_ssl_error()
             raise
         except HTTPError as err:
@@ -410,7 +402,7 @@ class LiveDAO(DAOImplementation):
         timeout = Timeout(connect=self._get_connect_timeout(),
                           read=self._get_timeout())
         kwargs = {
-            "retries": Retry(total=1, connect=0, read=0, redirect=1),
+            "retries": self._get_retry(),
             "timeout": timeout,
             "maxsize": self._get_max_pool_size(),
             "block": True,
@@ -434,6 +426,21 @@ class LiveDAO(DAOImplementation):
                 kwargs["ssl_context"] = ssl_context
 
         return connection_from_url(host, **kwargs)
+
+    def _get_retry(self):
+        """
+        Create a configurable urllib3.util.retry.Retry object.
+        """
+        return Retry(
+            total=int(self.dao.get_service_setting("RETRY_TOTAL",
+                      self.dao.get_setting("DEFAULT_RETRY_TOTAL", 1))),
+            connect=int(self.dao.get_service_setting("RETRY_CONNECT",
+                        self.dao.get_setting("DEFAULT_RETRY_CONNECT", 0))),
+            read=int(self.dao.get_service_setting("RETRY_READ",
+                     self.dao.get_setting("DEFAULT_RETRY_READ", 0))),
+            redirect=int(self.dao.get_service_setting("RETRY_REDIRECT",
+                         self.dao.get_setting("DEFAULT_RETRY_REDIRECT", 1))),
+        )
 
     def _get_connect_timeout(self):
         """
@@ -488,7 +495,7 @@ class MockDAO(DAOImplementation):
     def load(self, method, url, headers, body):
         service = self._service_name
 
-        cache_key = "{}-{}".format(service, url)
+        cache_key = f"{service}-{url}"
         value = get_cache_value(cache_key)
         if value:
             return value

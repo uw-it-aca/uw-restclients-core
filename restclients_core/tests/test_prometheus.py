@@ -1,14 +1,16 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from restclients_core.tests.dao_implementation.test_backend import TDAO
 from unittest import TestCase
-from prometheus_client import generate_latest, REGISTRY
+
+from prometheus_client import REGISTRY, generate_latest
+
+from restclients_core.tests.dao_implementation.test_backend import TDAO
 
 
 class TestPrometheusObservations(TestCase):
     def test_prometheus_observation(self):
-        response = TDAO().getURL('/ok')
+        _response = TDAO().getURL('/ok')
 
         metrics = generate_latest(REGISTRY).decode('utf-8')
         self.assertRegex(

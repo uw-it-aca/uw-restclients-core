@@ -1,8 +1,10 @@
-# Copyright 2026 UW-IT, University of Washington
+# Copyright 2026 UWIT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
+
 from commonconf import settings
+
 from restclients_core.dao import DAO
 from restclients_core.util.decorators import use_mock
 
