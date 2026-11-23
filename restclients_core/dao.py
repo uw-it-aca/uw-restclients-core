@@ -158,6 +158,9 @@ class DAO:
         if bad_response:
             return bad_response
 
+        if headers is None:
+            headers = {}
+
         custom_headers = self._custom_headers(method, url, headers, body)
         if custom_headers:
             headers.update(custom_headers)
